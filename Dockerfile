@@ -16,6 +16,8 @@ ENV DB_PASSWORD = "postgres",
 ENV DB_HOST = "127.0.0.1", 
 ENV BD_PORT = "5432")
 
+ENV BUCKET = "basementremodeling-archive-12345"
+
 COPY requirements.txt ./
 RUN pip3 install --no-cache-dir -r requirements.txt
 

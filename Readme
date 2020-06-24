@@ -1,0 +1,3 @@
+TODOS:
+  - Salesforce returns 2000 leads at a time max, implement pagination
+  - Use EBS volume to store config data for your docker image (env vars)  

@@ -1,8 +1,9 @@
 import requests
 import os
 import json
-
-
+import csv
+import boto3
+s3 = boto3.client('s3')
 #Object to get auth token from salesforce and send a query to get all
 #the necessary fields for leads whose reminder's status has to be updated
 class Salesforce:
@@ -42,16 +43,37 @@ class Salesforce:
     def get_object_fields(self):
         resp = requests.get(self.get_object_fields_url,headers={'Authorization':f"Bearer {self.token}"})
         body = resp.json()
-        checkbox_fields = [i["name"] for i in body["fields"] if i["type"] == "boolean"]
+        boolean_fields = [i["name"] for i in body["fields"] if i["type"] == "boolean"]
         date_fields = [i["name"] for i in body["fields"] if "DATE" in i["name"]]
-        fields = list(set(checkbox_fields + date_fields ))
-        return fields
+        self.boolean_fields = boolean_fields
+        self.date_fields = date_fields
+        return boolean_fields, date_fields
 
-    #send the query to fecth all fields from above from objects with lead ids provided
-    def query(self, lead_ids, fields):
+    # send the query to fetch fields found above from objects with lead ids
+    # fetched from the db
+    def get_records(self, lead_ids, fields):
         fields_string = ",".join(fields)
         ids_string = ",".join(lead_ids)
         query = f"SELECT Id,Name,{fields_string} FROM Lead WHERE Id IN ('{ids_string}')"
         r = requests.get(self.query_url,params={'q':query}, headers={'Authorization':f"Bearer {self.token}"})
-        body = r.json()
+        body = r.json()['records']
+        for rec in body:
+            del rec['attributes']
         return body
+
+    def write_records_to_s3(self, lead_ids, fields):
+        records = self.get_records(lead_ids,fields)
+        print(self.records)
+        bucket = os.getenv["BUCKET"]
+        with open('records.csv','w') as f:
+            w = csv.DictWriter(f,delimiter='\t', fieldnames=['Id','Name'] + fields)
+            w.writeheader()
+            w.writerows(self.records)
+            s3.upload
+        s3.upload_file('records.csv', bucket, 'scheduler/records.csv')
+        
+    # TODO: make another table with keys lead_id and fields that need to be
+    # filled in (booleanes like "start date confirmed").
+    # then, we can join tables on lead_id, then fecth all lead_ids
+    # that do not have all booleanes complete and delete others. 
+    # Save json from salesforce as csv to s3, and export it into rds from there
