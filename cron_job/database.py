@@ -113,19 +113,23 @@ class Database():
         tz = pytz.timezone('America/New_York')
         now = datetime.now(tz)
         now_pretty = now.strftime("%Y-%m-%d %H:%M")
+        # BUG HERE
         self.cursor.execute(
             f'''
             UPDATE SCHEDULER
             SET next_action= scheduler.next_action + due.frequency_in_days_before_cutoff * interval '1 day'
             FROM (SELECT * FROM SCHEDULER
                 WHERE next_action <= %s::timestamp AND cutoff IS NOT NULL) AS due
-            WHERE scheduler.next_action < scheduler.cutoff;
+            WHERE scheduler.next_action < scheduler.cutoff RETURNING SCHEDULER.id;
+            ''', [now_pretty])
+        updated_ids = [row[0] for row in self.cursor.fetchall()]
+        self.cursor.execute( '''
             UPDATE SCHEDULER
             SET next_action= scheduler.next_action + due.frequency_in_days_after_cutoff * interval '1 day'
             FROM (SELECT * FROM SCHEDULER
-                WHERE next_action <= %s::timestamp AND cutoff IS NOT NULL) AS due
-            WHERE scheduler.next_action >= scheduler.cutoff;
-            ''',[now_pretty,now_pretty])
+                WHERE next_action <= %s::timestamp AND cutoff IS NOT NULL ) AS due
+            WHERE scheduler.next_action >= scheduler.cutoff AND NOT( scheduler.id = ANY(%s) );
+            ''',[now_pretty,updated_ids])
         self.connection.commit()
 
     # delete records that do not have CUTOFF value (meaning, 
