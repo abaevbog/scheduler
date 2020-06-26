@@ -68,7 +68,7 @@ class Salesforce:
             del rec['attributes']
         return body
 
-    def parse_records(self, lead_ids, fields):
+    def get_parsed_records(self, lead_ids, fields):
         records = self.get_records(lead_ids,fields)
         broken_into_satisfied_or_not = []
         keys = records[0].keys()

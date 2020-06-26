@@ -69,8 +69,8 @@ class Dummy:
             'url_to_hit':None,
             'frequency_in_days_before_cutoff':3,
             'frequency_in_days_after_cutoff': 1,
-            'required_salesforce_fields' : None,
-            'comment' : 'Due action after cutoff'
+            'required_salesforce_fields' : ['start_date_confirmed__c', 'project_prep_form_submitted__c','impossible_field'],
+            'comment' : 'Next action due, after cutoff'
         }
         # due action before cutoff
         self.param_five = {
@@ -83,6 +83,6 @@ class Dummy:
             'url_to_hit':None,
             'frequency_in_days_before_cutoff':3,
             'frequency_in_days_after_cutoff': 1,
-            'required_salesforce_fields' : None,
+            'required_salesforce_fields' : ['start_date_confirmed__c', 'project_prep_form_submitted__c','impossible_field'],
             'comment' : 'Next action due, before cutoff'
         }
