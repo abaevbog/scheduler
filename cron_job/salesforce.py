@@ -68,14 +68,23 @@ class Salesforce:
             del rec['attributes']
         return body
 
-    def write_records_to_s3(self, lead_ids, fields):
+    def parse_records(self, lead_ids, fields):
         records = self.get_records(lead_ids,fields)
-        fields.sort()
-        print(f"bool fields in csv: {fields}")
-        bucket = self.config.get('salesforce',"BUCKET")
-        with open('records.csv','w') as f:
-            w = csv.DictWriter(f,delimiter='|', fieldnames=['Id','Name'] + fields)
+        broken_into_satisfied_or_not = []
+        keys = records[0].keys()
+        for rec in records:
+            d = {'id':rec['Id'],'name':rec['Name']}
+            satisfied = [key.lower() for key in rec if rec[key]]
+            not_satisfied = [key.lower() for key in rec if not rec[key]]
+            d['satisfied'] = satisfied
+            d['not_satisfied'] = not_satisfied
+            broken_into_satisfied_or_not.append(d)
+        return broken_into_satisfied_or_not
+        #fields.sort()
+        #bucket = self.config.get('salesforce',"BUCKET")
+        #with open('records.csv','w') as f:
+        #    w = csv.DictWriter(f,delimiter='|', fieldnames=['id','name','satisfied','not_satisfied'])
             #w.writeheader()
-            w.writerows(records)
-        s3.upload_file('records.csv', bucket, 'scheduler/records.csv')
+        #    w.writerows(broken_into_satisfied_or_not)
+        #s3.upload_file('records.csv', bucket, 'scheduler/records.csv')
         

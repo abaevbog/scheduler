@@ -4,7 +4,6 @@ import pytz
 from datetime import datetime
 from random import randint
 
-
 #make sure you don't forget to close connection
 class Database():
     def __init__(self, config):
@@ -48,17 +47,16 @@ class Database():
     # Create table where we'll put data with boolean fields 
     # fetched from salesforce for a join after.
     def create_salesforce_recs_table(self, boolean_fields):
-        print(f"bool fields in db: {boolean_fields}")
         boolean_fields.sort()
         db_rows = [f"{field} BOOLEAN" for field in boolean_fields]
         db_rows_to_be_filled = ",".join([f"{field.upper()} BOOLEAN" for field in boolean_fields])
-        print(db_rows_to_be_filled)
         self.cursor.execute(
             f'''
-            CREATE TABLE SALESFORCE_RECORDS 
+            CREATE TABLE IF NOT EXISTS SALESFORCE_RECORDS 
             ( Id  VARCHAR(20)  PRIMARY KEY  NOT NULL,
               NAME VARCHAR(100) NOT NULL,
-            {db_rows_to_be_filled}
+              satisfied TEXT[],
+              not_satisfied TEXT[]
             );
             ''')
         self.connection.commit()
@@ -85,25 +83,26 @@ class Database():
 
         uid = randint(0,1000000)
         table_names = ['id'] + [key for key in db_fields.keys() if db_fields[key] is not None]
-        values = [db_fields[key] for key in db_fields.keys() if db_fields[key] is not None]
-        values_formatted = [str(uid)] + list(map(lambda x: "\'" + x + "\'" if isinstance(x,str) else str(x) ,values))
+        values = [uid] + [db_fields[key] for key in db_fields.keys() if db_fields[key] is not None]
+        values_placeholders = ",".join(["%s" for i in values])
+        #values_formatted = [str(uid)] + list(map(lambda x: "\'" + x + "\'" if isinstance(x,str) else str(x) ,values))
         self.cursor.execute(
             f'''
             INSERT INTO SCHEDULER ({",".join(table_names)})
             VALUES 
-            ({",".join(values_formatted)})
-            ''')
+            ({values_placeholders})
+            ''',values)
         self.connection.commit()
 
     # fetch actions that need to happen right now
     def fetch_due_actions(self):
         tz = pytz.timezone('America/New_York')
         now = datetime.now(tz)
-        now_pretty = now.strftime("%Y-%m-%d %H:%M:%S")
+        now_pretty = str(now.strftime("%Y-%m-%d %H:%M:%S"))
         recs = self.cursor.execute(
             f'''
-            SELECT * FROM SCHEDULER WHERE next_action <= {now_pretty}::timestamp
-            ''')
+            SELECT * FROM SCHEDULER WHERE next_action <= %s::timestamp
+            ''',[now_pretty])
         return self.cursor.fetchall()
 
     def delete_records(self, lead_ids):      
@@ -121,13 +120,15 @@ class Database():
         self.cursor.execute(
             f'''
             UPDATE SCHEDULER
-            SET next_action = next_action + INTERVAL due.frequency_in_days_before_cutoff DAY    
-            FROM (SELECT * FROM SCHEDULER WHERE next_action <= {now_pretty}::timestamp AND cutoff IS NOT NULL) as due
-            WHERE next_action <= cutoff;
+            SET next_action= scheduler.next_action + due.frequency_in_days_before_cutoff * interval '1 day'
+            FROM (SELECT * FROM SCHEDULER
+                WHERE next_action <= {now_pretty}::timestamp AND cutoff IS NOT NULL) AS due
+            WHERE scheduler.next_action < scheduler.cutoff;
             UPDATE SCHEDULER
-            SET next_action = next_action + INTERVAL due.frequency_in_days_after_cutoff DAY    
-            FROM (SELECT * FROM SCHEDULER WHERE next_action <= {now_pretty}::timestamp AND cutoff IS NOT NULL) as due
-            WHERE next_action >= cutoff;
+            SET next_action= scheduler.next_action + due.frequency_in_days_after_cutoff * interval '1 day'
+            FROM (SELECT * FROM SCHEDULER
+                WHERE next_action <= {now_pretty}::timestamp AND cutoff IS NOT NULL) AS due
+            WHERE scheduler.next_action >= scheduler.cutoff;
             ''')
         self.connection.commit()
 
@@ -139,14 +140,32 @@ class Database():
         now_pretty = now.strftime("%Y-%m-%d %H:%M:%S")
         self.cursor.execute(
             f'''
-            DELETE FROM SCHEDULER  WHERE next_action <= {now_pretty}::timestamp AND cutoff IS NULL;
-            ''')
+            DELETE FROM SCHEDULER  WHERE next_action <= %s::timestamp AND cutoff IS NULL;
+            ''',[now_pretty])
         self.connection.commit()
 
     #
     def reload_salesforce_records(self, boolean_fields):
         self.cursor.execute("DROP TABLE SALESFORCE_RECORDS;")
         self.create_SALESFORCE_RECORDS_table(boolean_fields)
+
+
+    def insert_data_to_salesforce_recs(self, data):
+        placeholders = ",".join(["(%s,%s,%s,%s)" for i in data])
+        recs_array = []
+        print(placeholders)
+        for dic in data:
+            recs_array.append(dic['id'])
+            recs_array.append(dic['name'])
+            recs_array.append(dic['satisfied'])
+            recs_array.append(dic['not_satisfied'])
+        print(recs_array)
+        self.cursor.execute(
+        f'''
+        INSERT INTO salesforce_records (id, name, satisfied, not_satisfied)
+        VALUES {placeholders}
+        ''', recs_array)
+        self.connection.commit()
 
     # load data from s3 into SALESFORCE_RECORDS table
     def import_data_from_s3(self):
@@ -162,18 +181,12 @@ class Database():
             );''')
         self.connection.commit()
         
-    # CHECK HOW IT WORKS OUT WITH DIFFERENT typeS
-    # Certainly won't work right away
-    # ---
-    # find set of records S such that for every
-    # Entry in S, all necessary fields of Entry in salesforce
-    # have been filled in
+    #  find records that have all necessary checkboxes checked in salesforce
     def find_satisfied_records(self):
         self.cursor.execute(
             f'''
-            SELECT joined.lead_idFROM (SELECT * FROM SCHEDULER sch INNER JOIN SALESFORCE_RECORDS sr
-            ON sch.lead_id= sr.lead_idWHERE) as joined 
-            WHERE ALL( SELECT joined.required_salesforce_fields FROM joined) ;
+            SELECT * FROM (SELECT * FROM SCHEDULER sch INNER JOIN SALESFORCE_RECORDS sr
+            ON sch.lead_id= sr.id ) as joined where joined.required_salesforce_fields::text[] <@ joined.satisfied;
             '''
         )
         return [row[0] for row in self.cursor.fetchall()]
