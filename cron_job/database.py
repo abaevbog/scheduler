@@ -39,8 +39,6 @@ class Database():
                 required_salesforce_fields   VARCHAR(250)[],
                 comment         TEXT        NOT NULL
                 );
-            CREATE EXTENSION IF NOT EXISTS aws_commons;
-            CREATE EXTENSION  IF NOT EXISTS aws_s3 CASCADE;
             ''')
         self.connection.commit()
     

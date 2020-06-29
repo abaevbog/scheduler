@@ -1,0 +1,41 @@
+
+service: constantly-running
+# app and org for use with dashboard.serverless.com
+app: database_client
+#org: your-org-name
+
+
+
+provider:
+  name: aws
+  runtime: python3.8
+
+custom:
+  pythonRequirements:
+    dockerizePip: true
+
+
+functions:
+  add:
+    handler: app.add
+    events:
+      - http:
+          path: /add
+          method: post
+
+  delete:
+    handler: app.delete
+    events:
+      - http:
+          path: /delete
+          method: delete
+
+  get-fields:
+    handler: app.request_fields
+    events:
+      - http:
+          path: /get_fields
+          method: get
+
+plugins:
+  - serverless-python-requirements

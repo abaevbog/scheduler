@@ -1,0 +1,7 @@
+cron_job/old_scheduler.conf
+cron_job/__pycache__/*
+
+constantly_running/node_modules/*
+constantly_running/scheduler.conf
+
+terraform/.terraform/*

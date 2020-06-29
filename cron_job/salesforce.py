@@ -61,8 +61,7 @@ class Salesforce:
         try:
             body = r.json()['records']
         except Exception as e:
-            print(f"Response caused the exception: {e}")
-            print("Check if query if properly formatted")
+            print(f"SALESFORCE: Response caused the exception: {e}")
             return
         for rec in body:
             del rec['attributes']
@@ -80,11 +79,4 @@ class Salesforce:
             d['not_satisfied'] = not_satisfied
             broken_into_satisfied_or_not.append(d)
         return broken_into_satisfied_or_not
-        #fields.sort()
-        #bucket = self.config.get('salesforce',"BUCKET")
-        #with open('records.csv','w') as f:
-        #    w = csv.DictWriter(f,delimiter='|', fieldnames=['id','name','satisfied','not_satisfied'])
-            #w.writeheader()
-        #    w.writerows(broken_into_satisfied_or_not)
-        #s3.upload_file('records.csv', bucket, 'scheduler/records.csv')
         

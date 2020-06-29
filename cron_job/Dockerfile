@@ -7,7 +7,7 @@ RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2
 
 COPY requirements.txt ./
 RUN pip3 install --no-cache-dir -r requirements.txt
-#COPY . . remove that 
-# RUN chmod +x ./entrypoint.sh and that
-# ENTRYPOINT [ "./entrypoint.sh" ] and that
-#CMD [ "python", "./runner.py" ]
+COPY . .
+RUN chmod +x ./entrypoint.sh
+ENTRYPOINT [ "./entrypoint.sh" ]
+CMD [ "python", "./runner.py" ]
