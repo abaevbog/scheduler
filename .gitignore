@@ -1,7 +1,10 @@
 cron_job/old_scheduler.conf
 cron_job/__pycache__/*
+constantly_running/__pycache__/*
+constantly_running/.serverless/*
 
 constantly_running/node_modules/*
-constantly_running/scheduler.conf
+constantly_running/scheduler.yaml
 
 terraform/.terraform/*
+terraform/terraform.tfvars

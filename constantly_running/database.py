@@ -8,27 +8,31 @@ from random import randint
 
 class Database():
     def __init__(self, config):
+        print("Initing DB")
+        print(config)
         conn = psycopg2.connect(
-            database = config.get('database','DB_NAME'),
-            user = config.get('database','DB_USER'), 
-            password = config.get('database','DB_PASSWORD'), 
-            host = config.get('database','DB_HOST'), 
-            port = config.get('database','DB_PORT')
+            database = config.get('database'),
+            user = config.get('user'), 
+            password = config.get('password'), 
+            host = config.get('host'), 
+            port = config.get('port')
         )
         self.connection = conn
         self.cursor = conn.cursor()
         self.config = config
+        print("DN connected")
 
 
     def delete_record(self, lead_id):      
         self.cursor.execute(
             f'''
-            DELETE FROM SCHEDULER WHERE id = %s;
+            DELETE FROM SCHEDULER WHERE lead_id = %s;
             ''', [lead_id])
         self.connection.commit()
 
     def get_fields(self):
-        return  {
+        print("Getting fields")
+        return  [
                 'lead_id',
                 'lead_status',
                 'next_action',
@@ -40,7 +44,7 @@ class Database():
                 'frequency_in_days_after_cutoff',
                 'required_salesforce_fields' ,
                 'comment' 
-                }
+            ]
 
     def add_new_record(self,**kwargs):
         db_fields = {
@@ -75,3 +79,34 @@ class Database():
         self.connection.commit()
 
         
+    def create_main_table(self):
+        self.cursor.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS SCHEDULER
+                (ID   INT     PRIMARY KEY         NOT NULL,  
+                lead_id       VARCHAR(20)        NOT NULL,  
+                lead_status    VARCHAR(250)       NOT NULL,
+                next_action    TIMESTAMP          NOT NULL,
+                url_to_hit     TEXT ,
+                event_date     TIMESTAMP,
+                cutoff         TIMESTAMP,
+                type           VARCHAR(250),
+                frequency_in_days_before_cutoff INT,
+                frequency_in_days_after_cutoff INT,
+                required_salesforce_fields   VARCHAR(250)[],
+                comment         TEXT        NOT NULL
+                );
+            ''')
+        self.connection.commit()
+
+    def create_salesforce_recs_table(self):
+        self.cursor.execute(
+            f'''
+            CREATE TABLE IF NOT EXISTS SALESFORCE_RECORDS 
+            ( Id  VARCHAR(20)  PRIMARY KEY  NOT NULL,
+              NAME VARCHAR(100) NOT NULL,
+              satisfied TEXT[],
+              not_satisfied TEXT[]
+            );
+            ''')
+        self.connection.commit()

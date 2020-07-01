@@ -9,33 +9,58 @@ app: database_client
 provider:
   name: aws
   runtime: python3.8
-
+  vpc: ${file(./scheduler.yaml):vpc}
+  environment: ${file(./scheduler.yaml):database}
+  endpointType: REGIONAL
+    
 custom:
   pythonRequirements:
-    dockerizePip: true
+    dockerizePip: non-linux
+    dockerFile: ./Dockerfile
+
 
 
 functions:
+
   add:
-    handler: app.add
+    handler: api.add
     events:
-      - http:
-          path: /add
-          method: post
+    - http:
+        path: /add
+        method: post
+        authorizer:
+          arn: arn:aws:lambda:us-east-1:612185335394:function:utilities-dev-authorizer
+    timeout: 15
 
   delete:
-    handler: app.delete
+    handler: api.delete
     events:
-      - http:
-          path: /delete
-          method: delete
+    - http:
+        path: /delete
+        method: get
+        authorizer:
+          arn: arn:aws:lambda:us-east-1:612185335394:function:utilities-dev-authorizer
+    timeout: 15
+  
 
   get-fields:
-    handler: app.request_fields
+    handler: api.request_fields
     events:
-      - http:
-          path: /get_fields
-          method: get
+    - http:
+        path: /get_fields
+        method: get
+    timeout: 5
+
+  create-tables:
+    handler: api.create_tables
+    events:
+    - http:
+        path: /create_tables
+        method: get
+        authorizer:
+          arn: arn:aws:lambda:us-east-1:612185335394:function:utilities-dev-authorizer
+    timeout: 15
+
 
 plugins:
   - serverless-python-requirements

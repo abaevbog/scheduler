@@ -26,8 +26,7 @@ def expire_satisfied_records(db,salesforce):
 def main():
     print("EXECUTION BEGAN")
     config = configparser.ConfigParser()
-    with open(r'scheduler.conf') as f:
-        config.read(f)
+    config.read('scheduler.conf')
     database = Database(config)
     salesforce = Salesforce(config)
     salesforce.authenticate()
@@ -43,7 +42,7 @@ def main():
     for action in due_actions:
         url_to_hit = config.get('urls',action[2])
         lead_id = action[1]
-        requests.post(url_to_hit, body={'lead_id':lead_id}) #we'll have to send more stuff in body. What other fields should be sent?
+        requests.post(url_to_hit, data={'lead_id':lead_id}) #we'll have to send more stuff in body. What other fields should be sent?
         # sleep to not overload api gateway
         sleep(1)
     print("ALL ACTIONS TAKEN")

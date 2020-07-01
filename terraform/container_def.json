@@ -1,0 +1,13 @@
+[{
+    "name" : "scheduler_cron_job",
+    "image" : "612185335394.dkr.ecr.us-east-1.amazonaws.com/reminders_scheduler:latest",
+    "memory": 1024,
+    "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+            "awslogs-group": "/ecs/scheduler_cron",
+            "awslogs-region": "us-east-1",
+            "awslogs-stream-prefix": "ecs/scheduler_cron_job"
+        }
+    }
+}]
