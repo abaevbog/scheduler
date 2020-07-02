@@ -204,7 +204,6 @@ resource "aws_cloudwatch_event_target" "ecs_scheduled_task" {
       security_groups = [aws_security_group.allow_anything_for_lambda.id]
     }
   }
-
 }
 
 output "VPC" {

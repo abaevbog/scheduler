@@ -22,6 +22,7 @@ def expire_satisfied_records(db,salesforce):
     # we want to perform a join with scheduler and status table
     # to get table with all required fields and all satisfied fields
     old_entries = db.find_satisfied_records()
+    print(f"DELETING SATISFIED ENTRIES: {old_entries}")
     db.delete_records(old_entries)
 
 
@@ -45,7 +46,8 @@ def main():
         url_to_hit = config.get('urls',action[2])
         lead_id = action[1]
         lead_status = action[2]
-        requests.post(url_to_hit, data={'lead_id':lead_id, 'stage':lead_status}) #we'll have to send more stuff in body. What other fields should be sent?
+        action_type = action[7]
+        requests.post(url_to_hit, data={'lead_id':lead_id, 'stage':lead_status, 'type':action_type}) #we'll have to send more stuff in body. What other fields should be sent?
         print(f"Triggered event for {lead_id} with status {lead_status}")
         # sleep to not overload api gateway
         sleep(1)

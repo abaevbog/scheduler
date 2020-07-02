@@ -144,6 +144,7 @@ class Database():
     #
     def truncate_salesforce_records(self):
         self.cursor.execute("TRUNCATE SALESFORCE_RECORDS;")
+        self.connection.commit()
 
 
     def insert_data_to_salesforce_recs(self, data):
