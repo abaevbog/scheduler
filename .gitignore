@@ -8,3 +8,6 @@ constantly_running/scheduler.yaml
 
 terraform/.terraform/*
 terraform/terraform.tfvars
+
+zapier_integration/node_modules/*
+zapier_integration/build/*

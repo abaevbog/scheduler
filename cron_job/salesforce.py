@@ -58,17 +58,20 @@ class Salesforce:
         ids_string = ",".join(ids_arr_formatted )
         query = f"SELECT Id,Name,{fields_string} FROM Lead WHERE Id IN ({ids_string})"
         r = requests.get(self.query_url,params={'q':query}, headers={'Authorization':f"Bearer {self.token}"})
-        try:
-            body = r.json()['records']
-        except Exception as e:
-            print(f"SALESFORCE: Response caused the exception: {e}")
-            return
+        body = r.json()
+        if "errorCode" in body.keys():
+            raise Exception(f"Error from salesforce: {body['message']}")
+        body = r.json()['records']
         for rec in body:
             del rec['attributes']
         return body
 
     def get_parsed_records(self, lead_ids, fields):
-        records = self.get_records(lead_ids,fields)
+        try:
+            records = self.get_records(lead_ids,fields)
+        except Exception as e:
+            print(f"SALESFORCE EXCEPTION: {e}")
+            return []
         broken_into_satisfied_or_not = []
         keys = records[0].keys()
         for rec in records:
@@ -79,4 +82,6 @@ class Salesforce:
             d['not_satisfied'] = not_satisfied
             broken_into_satisfied_or_not.append(d)
         return broken_into_satisfied_or_not
+        
+
         

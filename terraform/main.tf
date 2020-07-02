@@ -201,7 +201,7 @@ resource "aws_cloudwatch_event_target" "ecs_scheduled_task" {
     network_configuration {
       subnets = [aws_subnet.public_subnet.id]
       assign_public_ip = true
-      security_groups = [aws_security_group.allow_anything_for_lambda.name]
+      security_groups = [aws_security_group.allow_anything_for_lambda.id]
     }
   }
 

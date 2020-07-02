@@ -95,8 +95,8 @@ class Database():
         now_pretty = str(now.strftime("%Y-%m-%d %H:%M"))
         recs = self.cursor.execute(
             f'''
-            SELECT * FROM SCHEDULER WHERE next_action <= %s::timestamp
-            ''',[now_pretty])
+            SELECT * FROM SCHEDULER WHERE next_action <= %s::timestamp AND %s::timestamp <= event_date
+            ''',[now_pretty, now_pretty])
         return self.cursor.fetchall()
 
     def delete_records(self, lead_ids):      
@@ -111,7 +111,6 @@ class Database():
         tz = pytz.timezone('America/New_York')
         now = datetime.now(tz)
         now_pretty = now.strftime("%Y-%m-%d %H:%M")
-        # BUG HERE
         self.cursor.execute(
             f'''
             UPDATE SCHEDULER
@@ -138,8 +137,8 @@ class Database():
         now_pretty = now.strftime("%Y-%m-%d %H:%M")
         self.cursor.execute(
             f'''
-            DELETE FROM SCHEDULER  WHERE next_action <= %s::timestamp AND cutoff IS NULL;
-            ''',[now_pretty])
+            DELETE FROM SCHEDULER  WHERE (next_action <= %s::timestamp AND cutoff IS NULL) OR (event_date <= %s::timestamp );
+            ''',[now_pretty, now_pretty])
         self.connection.commit()
 
     #
@@ -168,7 +167,7 @@ class Database():
         self.cursor.execute(
             f'''
             SELECT * FROM (SELECT * FROM SCHEDULER sch INNER JOIN SALESFORCE_RECORDS sr
-            ON sch.lead_id= sr.id ) as joined where joined.required_salesforce_fields::text[] <@ joined.satisfied;
+            ON sch.lead_id= sr.id ) as joined where joined.required_salesforce_fields IS NOT NULL AND joined.required_salesforce_fields::text[] <@ joined.satisfied;
             '''
         )
         return [row[0] for row in self.cursor.fetchall()]

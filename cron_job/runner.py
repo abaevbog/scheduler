@@ -13,6 +13,8 @@ def expire_satisfied_records(db,salesforce):
     boolean_fields, date_fields = salesforce.get_object_fields()
     # get all lead ids from db
     all_lead_ids = db.fetch_all_lead_ids()
+    if all_lead_ids == []:
+        return
     # fetch records with given lead ids and write them to salesforce records table
     recs = salesforce.get_parsed_records(all_lead_ids,boolean_fields)
     db.insert_data_to_salesforce_recs(recs)
@@ -42,7 +44,9 @@ def main():
     for action in due_actions:
         url_to_hit = config.get('urls',action[2])
         lead_id = action[1]
-        requests.post(url_to_hit, data={'lead_id':lead_id}) #we'll have to send more stuff in body. What other fields should be sent?
+        lead_status = action[2]
+        requests.post(url_to_hit, data={'lead_id':lead_id, 'stage':lead_status}) #we'll have to send more stuff in body. What other fields should be sent?
+        print(f"Triggered event for {lead_id} with status {lead_status}")
         # sleep to not overload api gateway
         sleep(1)
     print("ALL ACTIONS TAKEN")

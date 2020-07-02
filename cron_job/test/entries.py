@@ -86,3 +86,11 @@ class Dummy:
             'required_salesforce_fields' : ['start_date_confirmed__c', 'project_prep_form_submitted__c','impossible_field'],
             'comment' : 'Next action due, before cutoff'
         }
+        #nothing should happen
+        self.param_six = {
+            'lead_id': '00Qf400000OV8YPEA1',
+            'lead_status': 'Client Form 2',
+            'next_action': '2020-06-24 18:00',
+            'event_date': '2020-06-29 18:00',
+            'comment' : 'Next action due, before cutoff'
+        }
