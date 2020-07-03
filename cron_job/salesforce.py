@@ -53,15 +53,15 @@ class Salesforce:
     # send the query to fetch fields found above from objects with lead ids
     # fetched from the db
     def get_records(self, lead_ids, fields):
+        fields.append('status')
         fields_string = ",".join(fields)
-        lead_ids.append('Status')
         ids_arr_formatted = list(map(lambda x: "\'" + x + "\'" ,lead_ids))
         ids_string = ",".join(ids_arr_formatted )
         query = f"SELECT Id,Name,{fields_string} FROM Lead WHERE Id IN ({ids_string})"
         r = requests.get(self.query_url,params={'q':query}, headers={'Authorization':f"Bearer {self.token}"})
         body = r.json()
-        if "errorCode" in body.keys():
-            raise Exception(f"Error from salesforce: {body['message']}")
+        if type(body) is list:
+            raise Exception(f"Error from salesforce: {body[0]['message']}")
         body = r.json()['records']
         for rec in body:
             del rec['attributes']

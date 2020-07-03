@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/usr/src/app/')
+sys.path.append('/Users/bogdanabaev/RandomProgramming/BasementRemodeling/scheduler/cron_job/')
 from salesforce import Salesforce
 import unittest
 from database import Database
@@ -8,12 +8,12 @@ import configparser
 from entries import Dummy
 from runner import expire_satisfied_records
 import pytz
-from datetime import datetime
+from datetime import datetime, timedelta
       
 config = configparser.ConfigParser()
-with open(r'../scheduler.conf') as f:
+with open(r'scheduler.conf') as f:
     config.read_file(f)
-salesforce = Salesforce(config,token='00Df40000025Uc7!AQoAQPb4BTmeMXplIODsMXaQ2DXHBvpYzuFH2hQdBWLuCTr1dJWhF6GfbgacAYF02s_AkXEkuFPtNgP63Eikk6HLTDj.mY.Q')
+salesforce = Salesforce(config, token='00Df40000025Uc7!AQoAQLbEiN5GYh147Pf.cIXfsPgS0hhs.MiT8MGz2rVlR3IgAr_lQUAmMRR6sGcbYgSYyJtMp7TGCkc9_eUS0ML6FNxbvTHO')
 database = Database(config)
 token = salesforce.authenticate()
 
@@ -29,38 +29,37 @@ class Testing(unittest.TestCase):
         database.add_new_record(**dummy.param_three)
         database.add_new_record(**dummy.param_four)
         database.add_new_record(**dummy.param_five)
-        
-
-    def test_bbbbbb_secondary_db(self):
-        print("SECONDARY DB SETUP")
-        checkbox_fields, date_fields  = salesforce.get_object_fields() 
-        database.create_salesforce_recs_table()
-        recs = salesforce.get_parsed_records(['00Qf400000OV4zKEAT', '00Qf400000NSD7oEAH', '00Qf400000OV8YPEA1'],list(set(checkbox_fields)))
+        database.create_salesforce_recs_table()     
 
     def test_ccccccc_expire_satisfied_records(self):
         print("EXPIRE SATISFIED RECORDS")
         expire_satisfied_records(database, salesforce)
-        database.cursor.execute("select * from scheduler where comment LIKE 'Satisfied%'")
+        database.cursor.execute("select * from scheduler where reminders_db_internal_comment LIKE 'Satisfied%'")
         self.assertTrue(database.cursor.fetchall() == [])
 
     def test_ddddddd_due_actions_and_one_time_expiration(self):
         print("ACTIONS DUE")
         due_actions = database.fetch_due_actions()
-        comments = [rec[-1] for rec in due_actions]
+        comments = [rec[0] for rec in due_actions]
         self.assertIn('Next action due, after cutoff',comments )
         self.assertIn('Next action due, before cutoff' , comments )
         self.assertIn('One time field that should be expired.' , comments)
         database.delete_expired_one_time_records()
-        database.cursor.execute("select * from scheduler where comment='One time field that should be expired.'")
+        database.cursor.execute("select * from scheduler where reminders_db_internal_comment='One time field that should be expired.'")
         self.assertTrue(database.cursor.fetchall() == [])
 
     def test_eeeeeeee_update_next_action_date(self):
         print("UPDATE ACTIONS")
+        tz = pytz.timezone('America/New_York')
+        one_day_from_now = datetime.now(tz) + timedelta(days = 1 )
+        one_day_from_now = one_day_from_now.strftime("%Y-%m-%d %H:%M")
+        three_days_from_now = datetime.now(tz) + timedelta(days = 3 )
+        three_days_from_now = three_days_from_now.strftime("%Y-%m-%d %H:%M")
         database.update_next_dates_of_due_actions()
-        database.cursor.execute("select * from scheduler where comment LIKE '% after cutoff'")
-        self.assertEqual(str(database.cursor.fetchone()[3].strftime("%Y-%m-%d %H:%M")), '2020-06-25 18:00')
-        database.cursor.execute("select * from scheduler where comment LIKE '% before cutoff'")
-        self.assertEqual(str(database.cursor.fetchone()[3].strftime("%Y-%m-%d %H:%M")), '2020-06-27 18:00')
+        database.cursor.execute("select * from scheduler where reminders_db_internal_comment LIKE '% after cutoff'")
+        self.assertEqual(str(database.cursor.fetchone()[3].strftime("%Y-%m-%d %H:%M"))[:10], one_day_from_now[:10])
+        database.cursor.execute("select * from scheduler where reminders_db_internal_comment LIKE '% before cutoff'")
+        self.assertEqual(str(database.cursor.fetchone()[3].strftime("%Y-%m-%d %H:%M"))[:10], three_days_from_now[:10])
 
 
 if __name__ == '__main__': 
