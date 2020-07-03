@@ -17,10 +17,10 @@ const addRecordToDB = (z, bundle) => {
 
   module.exports = {
     key: 'oneTimeAction',
-    noun: 'oneTimeAction',
+    noun: 'Add Entry to Delay DB',
     display: {
-      label: 'Action that should happen in the future once',
-      description: 'Action that should happen in the future once',
+      label: 'Single event to be tiggered in the future',
+      description: 'Add entry to DB that should be triggered only once',
     },
     operation: {
       perform: addRecordToDB,
@@ -31,22 +31,23 @@ const addRecordToDB = (z, bundle) => {
           label: 'ID of the lead',
         },
         {
-          key: 'lead_status',
+          key: 'reminders_db_internal_tag',
           required: true,
-          label: 'Status of the lead.',
+          label: 'Reminders database internal tag',
           choices: { 
-            'vp-01' : 'VP-01 flow'
-          },
+            'vp-01' : 'VP-01 flow',
+            'vp-02-01a' : 'VP-02-01a: wait for 4 weeks till precon',
+          }
+        },
+        {
+          key: 'reminders_db_internal_comment',
+          required: true,
+          label: 'Please add an internal comment to what this entry is.',
         },
         {
           key: 'next_action',
           required: true,
           label: 'Date of the next action. Format: YYYY-MM-DD HH:MM:SS.',
-        },
-        {
-          key: 'comment',
-          required: true,
-          label: 'Please add a comment to what this entry is. Should be informative as it can be useful during troubleshooting.',
         },
         {
           key: 'type',
@@ -55,7 +56,8 @@ const addRecordToDB = (z, bundle) => {
           choices: { 
             email : 'Email',
             text: 'Text',
-            other: 'Other'
+            other: 'Other',
+            email_and_text: "Email And Text"
           },
         },
       ],

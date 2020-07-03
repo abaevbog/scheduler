@@ -38,6 +38,7 @@ const addRecordToDB = (z, bundle) => {
           label: 'Reminders database internal tag',
           choices: { 
             'vp-01' : 'VP-01 flow',
+            'vp-02-01d': 'VP-02-01d: zap that initiates vp-02 reminders'
           }
         },
         {
@@ -48,7 +49,7 @@ const addRecordToDB = (z, bundle) => {
         {
           key: 'next_action',
           required: true,
-          label: 'Date of the next action. Format: YYYY-MM-DD HH:MM:SS.',
+          label: 'Date of the next action. Format: YYYY-MM-DD HH:MM:SS. ',
         },
         {
             key: 'event_date',

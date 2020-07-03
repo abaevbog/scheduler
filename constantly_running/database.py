@@ -63,9 +63,6 @@ class Database():
                 db_fields[key] = dict(kwargs.items())[key]                   
         if any(map(lambda x: x is None, [db_fields['lead_id'],db_fields['reminders_db_internal_tag'],db_fields['next_action'],db_fields['reminders_db_internal_comment'] ])):
             raise Exception("Lead id, reminders_db_internal_tag,reminders_db_internal_comment and next action parameters cannot be empty")
-        # if we don't have time specified in the date, set it for noon
-        if ":" not in db_fields['event_date']:
-            db_fields['event_date'] = db_fields['event_date'].strip() + ' 12:00:00'
 
         table_names = [key for key in db_fields.keys() if db_fields[key] is not None]
         values = [db_fields[key] for key in db_fields.keys() if db_fields[key] is not None]
