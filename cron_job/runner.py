@@ -45,10 +45,10 @@ def main():
     for action in due_actions:
         url_to_hit = config.get('urls',action[2])
         lead_id = action[1]
-        lead_status = action[2]
+        reminders_db_internal_tag = action[2]
         action_type = action[7]
-        requests.post(url_to_hit, data={'lead_id':lead_id, 'stage':lead_status, 'type':action_type}) #we'll have to send more stuff in body. What other fields should be sent?
-        print(f"Triggered event for {lead_id} with status {lead_status}")
+        requests.post(url_to_hit, data={'lead_id':lead_id, 'internal_tag':reminders_db_internal_tag, 'type':action_type}) #we'll have to send more stuff in body. What other fields should be sent?
+        print(f"Triggered event for {lead_id} with status {reminders_db_internal_tag}")
         # sleep to not overload api gateway
         sleep(1)
     print("ALL ACTIONS TAKEN")

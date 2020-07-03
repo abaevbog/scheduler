@@ -34,41 +34,41 @@ class Database():
         print("Getting fields")
         return  [
                 'lead_id',
-                'lead_status',
+                'reminders_db_internal_tag',
                 'next_action',
                 'event_date',
                 'cutoff',
                 'type',
-                'url_to_hit',
                 'frequency_in_days_before_cutoff',
                 'frequency_in_days_after_cutoff',
                 'required_salesforce_fields' ,
-                'comment' 
+                'reminders_db_internal_comment' 
             ]
 
     def add_new_record(self,**kwargs):
         db_fields = {
+            'reminders_db_internal_comment' : None,
             'lead_id': None,
-            'lead_status':None,
+            'reminders_db_internal_tag':None,
             'next_action':None,
             'event_date':None,
             'cutoff':None,
             'type':None,
-            'url_to_hit':None,
             'frequency_in_days_before_cutoff':None,
             'frequency_in_days_after_cutoff': None,
-            'required_salesforce_fields' : None,
-            'comment' : None
+            'required_salesforce_fields' : None
             }
         for key in db_fields.keys():
             if key in dict(kwargs.items()):
                 db_fields[key] = dict(kwargs.items())[key]                   
-        if any(map(lambda x: x is None, [db_fields['lead_id'],db_fields['lead_status'],db_fields['next_action'],db_fields['comment'] ])):
-            raise Exception("Lead id, lead status,comment and next action parameters cannot be empty")
+        if any(map(lambda x: x is None, [db_fields['lead_id'],db_fields['reminders_db_internal_tag'],db_fields['next_action'],db_fields['reminders_db_internal_comment'] ])):
+            raise Exception("Lead id, reminders_db_internal_tag,reminders_db_internal_comment and next action parameters cannot be empty")
+        # if we don't have time specified in the date, set it for noon
+        if ":" not in db_fields['event_date']:
+            db_fields['event_date'] = db_fields['event_date'].strip() + ' 12:00:00'
 
-        uid = randint(0,1000000)
-        table_names = ['id'] + [key for key in db_fields.keys() if db_fields[key] is not None]
-        values = [uid] + [db_fields[key] for key in db_fields.keys() if db_fields[key] is not None]
+        table_names = [key for key in db_fields.keys() if db_fields[key] is not None]
+        values = [db_fields[key] for key in db_fields.keys() if db_fields[key] is not None]
         values_placeholders = ",".join(["%s" for i in values])
         self.cursor.execute(
             f'''
@@ -83,18 +83,17 @@ class Database():
         self.cursor.execute(
             '''
             CREATE TABLE IF NOT EXISTS SCHEDULER
-                (ID   INT     PRIMARY KEY         NOT NULL,  
+                (reminders_db_internal_comment         TEXT        NOT NULL,  
                 lead_id       VARCHAR(20)        NOT NULL,  
-                lead_status    VARCHAR(250)       NOT NULL,
+                reminders_db_internal_tag    VARCHAR(250)       NOT NULL,
                 next_action    TIMESTAMP          NOT NULL,
-                url_to_hit     TEXT ,
                 event_date     TIMESTAMP,
                 cutoff         TIMESTAMP,
                 type           VARCHAR(250),
                 frequency_in_days_before_cutoff INT,
                 frequency_in_days_after_cutoff INT,
                 required_salesforce_fields   VARCHAR(250)[],
-                comment         TEXT        NOT NULL
+                ID   SERIAL     PRIMARY KEY      NOT NULL
                 );
             ''')
         self.connection.commit()
@@ -106,7 +105,8 @@ class Database():
             ( Id  VARCHAR(20)  PRIMARY KEY  NOT NULL,
               NAME VARCHAR(100) NOT NULL,
               satisfied TEXT[],
-              not_satisfied TEXT[]
+              not_satisfied TEXT[],
+              status VARCHAR(30)
             );
             ''')
         self.connection.commit()

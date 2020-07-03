@@ -35,8 +35,7 @@ const addRecordToDB = (z, bundle) => {
           required: true,
           label: 'Status of the lead.',
           choices: { 
-            client_form_01 : 'Client Form 01',
-            client_form_02: 'Client Form 02'
+            'vp-01' : 'VP-01 flow'
           },
         },
         {

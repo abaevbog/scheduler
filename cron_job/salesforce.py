@@ -54,6 +54,7 @@ class Salesforce:
     # fetched from the db
     def get_records(self, lead_ids, fields):
         fields_string = ",".join(fields)
+        lead_ids.append('Status')
         ids_arr_formatted = list(map(lambda x: "\'" + x + "\'" ,lead_ids))
         ids_string = ",".join(ids_arr_formatted )
         query = f"SELECT Id,Name,{fields_string} FROM Lead WHERE Id IN ({ids_string})"
@@ -75,7 +76,7 @@ class Salesforce:
         broken_into_satisfied_or_not = []
         keys = records[0].keys()
         for rec in records:
-            d = {'id':rec['Id'],'name':rec['Name']}
+            d = {'id':rec['Id'],'name':rec['Name'],'status':rec['Status']}
             satisfied = [key.lower() for key in rec if rec[key]]
             not_satisfied = [key.lower() for key in rec if not rec[key]]
             d['satisfied'] = satisfied

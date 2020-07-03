@@ -19,10 +19,10 @@ const addRecordToDB = (z, bundle) => {
 
   module.exports = {
     key: 'recurringAction',
-    noun: 'recurring Action',
+    noun: 'Add Entry to Reminders DB',
     display: {
-      label: 'Recurring Action',
-      description: 'Action that should happen repeatedly in the future, like reminders.',
+      label: 'Add Entry to Reminders DB',
+      description: 'Add entry to reminders database via lambda.',
     },
     operation: {
       perform: addRecordToDB,
@@ -33,13 +33,17 @@ const addRecordToDB = (z, bundle) => {
           label: 'ID of the lead',
         },
         {
-          key: 'lead_status',
+          key: 'reminders_db_internal_tag',
           required: true,
-          label: 'Status of the lead.',
+          label: 'Reminders database internal tag',
           choices: { 
-            client_form_01 : 'Client Form 01',
-            client_form_02: 'Client Form 02'
-          },
+            'vp-01' : 'VP-01 flow',
+          }
+        },
+        {
+          key: 'reminders_db_internal_comment',
+          required: true,
+          label: 'Please add an internal comment to what this entry is.',
         },
         {
           key: 'next_action',
@@ -85,18 +89,14 @@ const addRecordToDB = (z, bundle) => {
                         none:'none'}
         },
         {
-          key: 'comment',
-          required: true,
-          label: 'Please add a comment to what this entry is. Should be informative as it can be useful during troubleshooting.',
-        },
-        {
           key: 'type',
           required: true,
           label: 'Type of the action that should be taken.',
           choices: { 
             email : 'Email',
             text: 'Text',
-            other: 'Other'
+            other: 'Other',
+            email_and_text: "Email And Text"
           },
         },
       ],
