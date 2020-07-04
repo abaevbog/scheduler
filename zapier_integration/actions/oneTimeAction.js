@@ -35,8 +35,9 @@ const addRecordToDB = (z, bundle) => {
           required: true,
           label: 'Reminders database internal tag',
           choices: { 
-            'vp-01' : 'VP-01 flow',
-            'vp-02-01a' : 'VP-02-01a: wait for 4 weeks till precon',
+            'vp-01-01c' : 'VP-01 flow',
+            'vp-02-01c': 'VP-02-01c: catch start date webhook',
+            'vp-02-01i': 'VP-02-01i send reminders'
           }
         },
         {
