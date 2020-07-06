@@ -1,19 +1,19 @@
 import sys
-sys.path.append('/Users/bogdanabaev/RandomProgramming/BasementRemodeling/scheduler/cron_job/')
+sys.path.append('/Users/bogdanabaev/RandomProgramming/BasementRemodeling/scheduler/scheduler_cron_job/')
 from salesforce import Salesforce
 import unittest
 from database import Database
 import boto3
 import configparser
 from entries import Dummy
-from runner import expire_satisfied_records
+from runner import delete_satisfied_records
 import pytz
 from datetime import datetime, timedelta
       
 config = configparser.ConfigParser()
 with open(r'scheduler.conf') as f:
     config.read_file(f)
-salesforce = Salesforce(config, token='00Df40000025Uc7!AQoAQLbEiN5GYh147Pf.cIXfsPgS0hhs.MiT8MGz2rVlR3IgAr_lQUAmMRR6sGcbYgSYyJtMp7TGCkc9_eUS0ML6FNxbvTHO')
+salesforce = Salesforce(config)
 database = Database(config)
 token = salesforce.authenticate()
 
@@ -29,24 +29,30 @@ class Testing(unittest.TestCase):
         database.add_new_record(**dummy.param_three)
         database.add_new_record(**dummy.param_four)
         database.add_new_record(**dummy.param_five)
+        database.add_new_record(**dummy.param_seven)
         database.create_salesforce_recs_table()     
+
+    def test_cccdddd_delete_old_recs(self):
+        print("DELETE OLD RECORDS")
+        database.delete_expired_records()
+        database.cursor.execute("select * from scheduler where reminders_db_internal_comment='Action due but event date reached.'")
+        self.assertTrue(database.cursor.fetchall() == [])
+
 
     def test_ccccccc_expire_satisfied_records(self):
         print("EXPIRE SATISFIED RECORDS")
-        expire_satisfied_records(database, salesforce)
+        delete_satisfied_records(database, salesforce)
         database.cursor.execute("select * from scheduler where reminders_db_internal_comment LIKE 'Satisfied%'")
         self.assertTrue(database.cursor.fetchall() == [])
 
-    def test_ddddddd_due_actions_and_one_time_expiration(self):
+    def test_ddddddd_due_actions(self):
         print("ACTIONS DUE")
         due_actions = database.fetch_due_actions()
         comments = [rec[0] for rec in due_actions]
         self.assertIn('Next action due, after cutoff',comments )
         self.assertIn('Next action due, before cutoff' , comments )
         self.assertIn('One time field that should be expired.' , comments)
-        database.delete_expired_one_time_records()
-        database.cursor.execute("select * from scheduler where reminders_db_internal_comment='One time field that should be expired.'")
-        self.assertTrue(database.cursor.fetchall() == [])
+
 
     def test_eeeeeeee_update_next_action_date(self):
         print("UPDATE ACTIONS")

@@ -30,8 +30,9 @@ def request_fields(event,context):
 
 def create_tables(event,context):
     print("Creating tables")
-    db.create_main_table()
+    db.create_reminders_table()
     db.create_salesforce_recs_table()
+    db.create_delays_table()
     return {"statusCode":200, "body": json.dumps({"message" : "Tables created!"})}
 
 

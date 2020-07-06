@@ -1,0 +1,1 @@
+	EcsParameters: Task Definition: scheduler_cron, Task Count: 1, Launch Type: FARGATE, Subnets: [subnet-060fddc1acc3a696a], Security Groups: [sg-038940ad8bc5ae671], AssignPublicIp: ENABLED

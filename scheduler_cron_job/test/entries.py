@@ -86,11 +86,11 @@ class Dummy:
             'required_salesforce_fields' : ['start_date_confirmed__c', 'project_prep_form_submitted__c','impossible_field'],
             'reminders_db_internal_comment' : 'Next action due, before cutoff'
         }
-        # past event date: do nothing
+        # past event date: delete
         self.param_seven = {
             'lead_id': '00Qf400000OV8YPEA1',
             'reminders_db_internal_tag': 'Client Form 2',
-            'next_action': '2020-06-24 18:00',
+            'next_action': '2020-06-30 18:00',
             'event_date': '2020-06-29 18:00',
             'cutoff':'2020-06-23 18:00',
             'type': 'TEXT',

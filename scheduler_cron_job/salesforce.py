@@ -71,7 +71,7 @@ class Salesforce:
         try:
             records = self.get_records(lead_ids,fields)
         except Exception as e:
-            print(f"SALESFORCE EXCEPTION: {e}")
+            print(f"SCHEDULER SALESFORCE EXCEPTION: {e}")
             return []
         broken_into_satisfied_or_not = []
         keys = records[0].keys()

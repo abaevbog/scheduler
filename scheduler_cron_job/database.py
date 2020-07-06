@@ -29,13 +29,14 @@ class Database():
             ''',[now_pretty, now_pretty])
         return self.cursor.fetchall()
 
-    def delete_records(self, lead_ids):
-        print(lead_ids)      
+    def delete_records(self, lead_ids):   
         self.cursor.execute(
             f'''
-            DELETE FROM SCHEDULER WHERE id = Any(%s);
+            DELETE FROM SCHEDULER WHERE id = Any(%s) RETURNING *;
             ''', [lead_ids])
+        deleted = self.cursor.fetchall()
         self.connection.commit()
+        return deleted 
 
     # update date of when the action should be triggered next time
     def update_next_dates_of_due_actions(self):
@@ -60,19 +61,20 @@ class Database():
             ''',[now_pretty,now_pretty,updated_ids])
         self.connection.commit()
 
-    # delete records that do not have CUTOFF value (meaning, 
-    # ones that require only one action)
-    def delete_expired_one_time_records(self):
+    # delete records that reached event date
+    def delete_expired_records(self):
         tz = pytz.timezone('America/New_York')
         now = datetime.now(tz)
         now_pretty = now.strftime("%Y-%m-%d %H:%M")
         self.cursor.execute(
             f'''
-            DELETE FROM SCHEDULER  WHERE (next_action <= %s::timestamp AND cutoff IS NULL) OR (event_date <= %s::timestamp );
-            ''',[now_pretty, now_pretty])
+            DELETE FROM SCHEDULER  WHERE event_date <= %s::timestamp RETURNING *;
+            ''',[now_pretty])
+        deleted = self.cursor.fetchall()
+        for d in deleted:
+            self.print_record("SCHEDULER DATABASE EXPIRED",d)
         self.connection.commit()
-
-    #
+    
     def truncate_salesforce_records(self):
         self.cursor.execute("TRUNCATE SALESFORCE_RECORDS;")
         self.connection.commit()
@@ -111,6 +113,31 @@ class Database():
     def fetch_all_lead_ids(self):
         self.cursor.execute("SELECT lead_id FROM SCHEDULER;")
         return [row[0] for row in self.cursor.fetchall()]
+
+
+    def print_record(self, prefix, record):
+        fields = [
+                'reminders_db_internal_tag',
+                'lead_id',
+                'reminders_db_internal_comment',
+                'next_action',
+                'event_date',
+                'cutoff',
+                'type',
+                'frequency_in_days_before_cutoff',
+                'frequency_in_days_after_cutoff',
+                'required_salesforce_fields' ,
+                'id'
+            ]
+        log = ""
+        for num,name in enumerate(fields):
+            field_value = record[num]
+            if isinstance(field_value , datetime):
+                log+=f"{name}: {record[num].strftime('%Y-%m-%d %H:%M')} -- "
+            else:
+                log += f"{name}: {record[num]} -- "
+        print(f"{prefix} | {log}")
+        print("--------------")
 
 ## the functions below are used for testing
     def add_new_record(self,**kwargs):

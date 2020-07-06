@@ -76,7 +76,7 @@ class Database():
         self.connection.commit()
 
         
-    def create_main_table(self):
+    def create_reminders_table(self):
         self.cursor.execute(
             '''
             CREATE TABLE IF NOT EXISTS SCHEDULER
@@ -105,5 +105,20 @@ class Database():
               not_satisfied TEXT[],
               status VARCHAR(30)
             );
+            ''')
+        self.connection.commit()
+
+
+    def create_delays_table(self):
+        self.cursor.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS DELAYER
+                (delayer_db_internal_comment     TEXT        NOT NULL,  
+                lead_id                        VARCHAR(20)   NOT NULL,  
+                delayer_db_internal_tag        VARCHAR(250)  NOT NULL,
+                trigger_date                   TIMESTAMP     NOT NULL,
+                additional_info                TEXT,
+                ID                SERIAL     PRIMARY KEY      NOT NULL
+                );
             ''')
         self.connection.commit()
