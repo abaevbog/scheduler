@@ -4,6 +4,7 @@ from time import sleep
 import requests 
 import os
 import configparser
+import sys
 
 # fetch all actions, check with salesforce
 # for all records that have all prerequisites satisfied
@@ -67,4 +68,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        sys.exit(1)

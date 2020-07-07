@@ -22,34 +22,51 @@ custom:
 
 functions:
 
-  add:
-    handler: api.add
+  scheduler_add:
+    handler: scheduler_api.add
     events:
     - http:
-        path: /add
+        path: /scheduler/add
         method: post
         authorizer:
           arn: arn:aws:lambda:us-east-1:612185335394:function:utilities-dev-authorizer
     timeout: 15
 
-  delete:
-    handler: api.delete
+  scheduler_update:
+    handler: scheduler_api.update
     events:
     - http:
-        path: /delete
+        path: /scheduler/update
+        method: post
+        authorizer:
+          arn: arn:aws:lambda:us-east-1:612185335394:function:utilities-dev-authorizer
+    timeout: 15  
+
+  scheduler_fields:
+    handler: scheduler_api.request_fields
+    events:
+    - http:
+        path: /scheduler/get_fields
         method: get
+    timeout: 5
+  
+  delayer_fields:
+    handler: delayer_api.request_fields
+    events:
+    - http:
+        path: /delayer/get_fields
+        method: get
+    timeout: 5
+
+  delayer_add:
+    handler: delayer_api.add
+    events:
+    - http:
+        path: /delayer/add
+        method: post
         authorizer:
           arn: arn:aws:lambda:us-east-1:612185335394:function:utilities-dev-authorizer
     timeout: 15
-  
-
-  get-fields:
-    handler: api.request_fields
-    events:
-    - http:
-        path: /get_fields
-        method: get
-    timeout: 5
 
   create-tables:
     handler: api.create_tables

@@ -5,7 +5,7 @@ const addRecordToDB = (z, bundle) => {
     bundle.inputData.required_salesforce_fields = [...uniqueSet];
     z.console.log(bundle.inputData);
     const promise = z.request({
-        url:'https://usx0yjoww7.execute-api.us-east-1.amazonaws.com/dev/add',
+        url:'https://usx0yjoww7.execute-api.us-east-1.amazonaws.com/dev/scheduler/add',
         method: 'POST',
         body: bundle.inputData,
         headers: {

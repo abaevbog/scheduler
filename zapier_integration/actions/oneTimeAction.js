@@ -3,7 +3,7 @@
 const addRecordToDB = (z, bundle) => {
     z.console.log(bundle.inputData);
     const promise = z.request({
-        url:'https://usx0yjoww7.execute-api.us-east-1.amazonaws.com/dev/add',
+        url:'https://usx0yjoww7.execute-api.us-east-1.amazonaws.com/dev/delayer/add',
         method: 'POST',
         body: bundle.inputData,
         headers: {
