@@ -1,0 +1,13 @@
+[{
+    "name" : "delayer_cron_job",
+    "image" : "612185335394.dkr.ecr.us-east-1.amazonaws.com/delayer_scheduler:latest",
+    "memory": 1024,
+    "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+            "awslogs-group": "/ecs/delayer_cron",
+            "awslogs-region": "us-east-1",
+            "awslogs-stream-prefix": "ecs/delayer_cron_job"
+        }
+    }
+}]

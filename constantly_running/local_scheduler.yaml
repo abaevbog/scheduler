@@ -1,0 +1,7 @@
+database:
+  DB_NAME: "scheduler"
+  DB_USER: "postgres" 
+  DB_PASSWORD: "postgres" 
+  DB_HOST: "localhost"
+  DB_PORT: 5432
+  BUCKET: basementremodeling-archive-12345

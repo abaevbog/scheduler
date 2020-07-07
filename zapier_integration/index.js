@@ -1,5 +1,6 @@
 var oneTime = require('./actions/oneTimeAction');
 var recurring = require('./actions/recurringAction');
+var update = require('./actions/updateReminders');
 
 module.exports = {
   // This is just shorthand to reference the installed dependencies you have.
@@ -16,7 +17,8 @@ module.exports = {
   // If you want your creates to show up, you better include it here!
   creates: {
     [oneTime.key] : oneTime,
-    [recurring.key]: recurring
+    [recurring.key]: recurring,
+    [update.key]: update
   },
 
   resources: {},

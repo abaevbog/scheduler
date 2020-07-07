@@ -39,7 +39,9 @@ const addRecordToDB = (z, bundle) => {
           choices: { 
             'vp-01-01c' : 'VP-01 flow',
             'vp-02-01c': 'VP-02-01c: catch start date webhook',
-            'vp-02-01i': 'VP-02-01i send reminders'
+            'vp-02-01i': 'VP-02-01i send reminders',
+            'vp-02-01g': 'VP-02-01g QCL and 2d invoice',
+            'pm-03-01' : 'weekly reminders'
           }
         },
         {
@@ -54,8 +56,8 @@ const addRecordToDB = (z, bundle) => {
         },
         {
             key: 'event_date',
-            required: true,
-            label: 'Date of the key event after which the action is no longer repeated regardless of salesforce fields. Format: YYYY-MM-DD HH:MM:SS.',
+            required: false,
+            label: 'Optional date of the key event after which the action is no longer repeated regardless of salesforce fields. Format: YYYY-MM-DD HH:MM:SS.',
         },
         {
             key: 'cutoff',

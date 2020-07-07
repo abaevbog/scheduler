@@ -20,7 +20,7 @@ const addRecordToDB = (z, bundle) => {
     noun: 'Add Entry to Delay DB',
     display: {
       label: 'Single event to be tiggered in the future',
-      description: 'Add entry to DB that should be triggered only once',
+      description: 'Add entry to DB that will be triggered once in the future',
     },
     operation: {
       perform: addRecordToDB,
@@ -31,36 +31,32 @@ const addRecordToDB = (z, bundle) => {
           label: 'ID of the lead',
         },
         {
-          key: 'reminders_db_internal_tag',
+          key: 'delayer_db_internal_tag',
           required: true,
-          label: 'Reminders database internal tag',
+          label: 'delayer database internal tag',
           choices: { 
             'vp-01-01c' : 'VP-01 flow',
             'vp-02-01c': 'VP-02-01c: catch start date webhook',
-            'vp-02-01i': 'VP-02-01i send reminders'
+            'vp-02-01i': 'VP-02-01i send delayer',
+            'vp-02-01g': 'VP-02-01g QCL and 2d invoice',
+            'pm-03-01' : 'weekly reminders'
           }
         },
         {
-          key: 'reminders_db_internal_comment',
+          key: 'delayer_db_internal_comment',
           required: true,
           label: 'Please add an internal comment to what this entry is.',
         },
         {
-          key: 'next_action',
+          key: 'trigger_date',
           required: true,
           label: 'Date of the next action. Format: YYYY-MM-DD HH:MM:SS.',
         },
         {
-          key: 'type',
-          required: true,
-          label: 'Type of the action that should be taken.',
-          choices: { 
-            email : 'Email',
-            text: 'Text',
-            other: 'Other',
-            email_and_text: "Email And Text"
-          },
-        },
+          key: 'additional_info',
+          required: false,
+          label: 'Optional additional info about the record',
+        }
       ],
     }
   }
