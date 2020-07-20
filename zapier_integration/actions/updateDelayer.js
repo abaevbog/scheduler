@@ -41,8 +41,13 @@ const update = (z, bundle) => {
               'vp-02-01g': 'VP-02-01g QCL and 2d invoice',
               'vp-02-01h': 'VP-02-01h 2d invoice to todoist and slack',
               'pm-03-01' : 'weekly reminders',
-              'ycb-reminders' : 'Youcanbookme: send reminders before appointment'
+              'ycb-reminders' : 'Youcanbookme: '
             }
+        },
+        {
+          key: 'additional_info',
+          required: false,
+          label: 'Value of additional_info field of the entry in the database that will be updated',
         },
         {
             key: 'trigger_date',

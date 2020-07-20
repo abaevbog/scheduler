@@ -67,11 +67,11 @@ class Delayer():
             ''', [lead_id,internal_tag])
         self.connection.commit()
 
-    def update_record(self, lead_id, internal_tag, trigger_date): 
+    def update_record(self, lead_id, internal_tag, additional_info ,trigger_date): 
         self.cursor.execute(
             f'''
             UPDATE delayer SET
                 trigger_date = %s
-             WHERE lead_id = %s AND delayer_db_internal_tag = %s;
-            ''', [trigger_date, lead_id, internal_tag])
+             WHERE lead_id = %s AND delayer_db_internal_tag = %s AND additional_info = %s;
+            ''', [trigger_date, lead_id, internal_tag, additional_info])
         self.connection.commit()
