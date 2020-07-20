@@ -23,3 +23,18 @@ def add(event,context):
 def request_fields(event,context):
     fields = db.delayer.get_fields()
     return {"statusCode":200, "body": json.dumps({"db_fields" : fields})}
+
+def update(event,context):
+    body = json.loads(event['body'])
+    new_trigger_date = body['trigger_date']
+    lead_id = body['lead_id']
+    internal_tag = body['internal_tag']
+    db.delayer.update_record(lead_id, internal_tag, new_trigger_date)
+    return {"statusCode":200, "body": json.dumps({"message" : 'Record(s) updated'})}
+
+def delete_record(event,context):
+    body = json.loads(event['body'])
+    internal_tag = body['internal_tag']
+    lead_id = body['lead_id']
+    db.delayer.delete_record(lead_id,internal_tag)
+    return {"statusCode":200, "body": json.dumps({"message" : "Record deleted"})}

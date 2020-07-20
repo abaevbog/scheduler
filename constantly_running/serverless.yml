@@ -49,6 +49,16 @@ functions:
         path: /scheduler/get_fields
         method: get
     timeout: 5
+
+  scheduler_delete:
+    handler: scheduler_api.delete_record
+    events:
+    - http:
+        path: /scheduler/delete
+        method: post
+        authorizer:
+          arn: arn:aws:lambda:us-east-1:612185335394:function:utilities-dev-authorizer
+    timeout: 5
   
   delayer_fields:
     handler: delayer_api.request_fields
@@ -67,6 +77,26 @@ functions:
         authorizer:
           arn: arn:aws:lambda:us-east-1:612185335394:function:utilities-dev-authorizer
     timeout: 15
+
+  delayer_delete:
+    handler: delayer_api.delete_record
+    events:
+    - http:
+        path: /delayer/delete
+        method: post
+        authorizer:
+          arn: arn:aws:lambda:us-east-1:612185335394:function:utilities-dev-authorizer
+    timeout: 5
+
+  delayer_update:
+    handler: delayer_api.update
+    events:
+    - http:
+        path: /delayer/update
+        method: post
+        authorizer:
+          arn: arn:aws:lambda:us-east-1:612185335394:function:utilities-dev-authorizer
+    timeout: 5
 
   create-tables:
     handler: api.create_tables
