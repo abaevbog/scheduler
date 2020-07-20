@@ -39,7 +39,9 @@ const addRecordToDB = (z, bundle) => {
             'vp-02-01c': 'VP-02-01c: catch start date webhook',
             'vp-02-01i': 'VP-02-01i send delayer',
             'vp-02-01g': 'VP-02-01g QCL and 2d invoice',
-            'pm-03-01' : 'weekly reminders'
+            'vp-02-01h': 'VP-02-01h 2d invoice to todoist and slack',
+            'pm-03-01' : 'weekly reminders',
+            'ycb-reminders' : 'Youcanbookme: send reminders before appointment'
           }
         },
         {
