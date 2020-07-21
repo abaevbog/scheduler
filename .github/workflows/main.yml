@@ -39,4 +39,6 @@ jobs:
 
     - name: Update zapier if needed 
       if: contains(steps.files.outputs.all, 'zapier')
-      run: echo Zapier update
+      run: |
+        echo Zapier update
+        cd zapier_integration && zapier push && cd ..
