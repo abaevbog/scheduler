@@ -32,7 +32,7 @@ jobs:
         aws-region: us-east-1
 
     - name: Update config file if needed
-      if: contains('steps.files.outputs.all', 'scheduler.conf')
+      if: contains(steps.files.outputs.all, 'scheduler.conf')
       run: echo Updating config file
 
     - name: Check AWS access
