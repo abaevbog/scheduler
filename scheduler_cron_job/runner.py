@@ -29,23 +29,23 @@ def delete_satisfied_records(db,salesforce):
 
 
 def main():
-    print("SCHEDULER: EXECUTION BEGAN")
+    #print("SCHEDULER: EXECUTION BEGAN")
     config = configparser.ConfigParser()
     config.read('scheduler.conf')
     database = Database(config)
     salesforce = Salesforce(config)
     salesforce.authenticate()
-    print("SCHEDULER: SALESFORCE AUTHENTICATION COMPLETE")
+    #print("SCHEDULER: SALESFORCE AUTHENTICATION COMPLETE")
     # delete records that have been satisfied to not 
     # send people reminders about things they did
     delete_satisfied_records(database, salesforce)
-    print("SCHEDULER: SATISFIED RECORDS REMOVED")
+    #print("SCHEDULER: SATISFIED RECORDS REMOVED")
     # now, delete all entries that reached their expiration date
     database.delete_expired_records()
     # find what actions are to be activated or reminded now
     due_actions = database.fetch_due_actions()
     # go through all records, hit correct urls
-    print("SCHEDULER: DUE ACTIONS FETCHED")
+    #print("SCHEDULER: DUE ACTIONS FETCHED")
     for action in due_actions:
         url_to_hit = config.get('urls',action[2])
         lead_id = action[1]
@@ -55,12 +55,12 @@ def main():
         print(f"SCHEDULER: Triggered event for {lead_id} with status {reminders_db_internal_tag}")
         # sleep to not overload api gateway
         sleep(1)
-    print("SCHEDULER: ALL ACTIONS TAKEN")
+    #print("SCHEDULER: ALL ACTIONS TAKEN")
 
-    print("SCHEDULER: ONE TIME RECORDS EXPIRED")
+    #print("SCHEDULER: ONE TIME RECORDS EXPIRED")
     # update when renewable actions should be triggered next
     database.update_next_dates_of_due_actions()
-    print("SCHEDULER: NEXT DATES UPDATED")
+    #print("SCHEDULER: NEXT DATES UPDATED")
     # toss away old status table
     database.truncate_salesforce_records()
     print("SCHEDULER:DONE")
