@@ -21,10 +21,7 @@ jobs:
       uses: jitterbit/get-changed-files@v1
       
     - name: Print changed files
-      run: |
-        for changed_file in ${{ steps.files.outputs.all }}; do
-          echo "Do something with this ${changed_file}."
-        done
+      run: echo ${steps.files.outputs}
 
     - name: Configure AWS credentials 
       uses: aws-actions/configure-aws-credentials@v1
