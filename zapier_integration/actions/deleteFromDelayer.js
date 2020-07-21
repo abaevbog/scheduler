@@ -1,5 +1,3 @@
-
-
 const remove = (z, bundle) => {
     z.console.log(bundle.inputData);
     const promise = z.request({

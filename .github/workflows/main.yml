@@ -33,7 +33,10 @@ jobs:
 
     - name: Update config file if needed
       if: contains(steps.files.outputs.all, 'scheduler.conf')
-      run: echo Updating config file
+      run: | 
+        echo Updating config file
+        aws s3 cp scheduler.conf s3://basementremodeling-archive-12345/config/scheduler.conf
 
-    - name: Check AWS access
-      run : aws s3 ls
+    - name: Update zapier if needed 
+      if: contains(steps.files.outputs.all, 'zapier')
+      run: echo Zapier update
