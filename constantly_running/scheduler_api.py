@@ -17,6 +17,7 @@ db = Database(config)
 def add(event,context):
     body = json.loads(event['body'])
     db.scheduler.add_record(**body)
+    db.scheduler.print_record("SCHEDULER - ADD ",body)
     return {"statusCode":200, "body": json.dumps({"message" : "Record added to DB"})}
 
 def request_fields(event,context):

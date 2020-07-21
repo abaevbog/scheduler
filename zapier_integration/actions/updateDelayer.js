@@ -41,12 +41,12 @@ const update = (z, bundle) => {
               'vp-02-01g': 'VP-02-01g QCL and 2d invoice',
               'vp-02-01h': 'VP-02-01h 2d invoice to todoist and slack',
               'pm-03-01' : 'weekly reminders',
-              'ycb-reminders' : 'Youcanbookme: '
+              'ycb-reminders' : 'Youcanbookme: communication with the client'
             }
         },
         {
           key: 'additional_info',
-          required: false,
+          required: true,
           label: 'Value of additional_info field of the entry in the database that will be updated',
         },
         {

@@ -28,14 +28,14 @@ def update(event,context):
     body = json.loads(event['body'])
     new_trigger_date = body['trigger_date']
     lead_id = body['lead_id']
-    internal_tag = body['internal_tag']
+    internal_tag = body['delayer_db_internal_tag']
     additional_info = body['additional_info']
     db.delayer.update_record(lead_id, internal_tag,additional_info, new_trigger_date)
     return {"statusCode":200, "body": json.dumps({"message" : 'Record(s) updated'})}
 
 def delete_record(event,context):
     body = json.loads(event['body'])
-    internal_tag = body['internal_tag']
+    internal_tag = body['delayer_db_internal_tag']
     lead_id = body['lead_id']
     db.delayer.delete_record(lead_id,internal_tag)
     return {"statusCode":200, "body": json.dumps({"message" : "Record deleted"})}

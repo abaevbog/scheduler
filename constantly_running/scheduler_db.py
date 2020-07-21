@@ -97,3 +97,28 @@ class Scheduler():
             DELETE FROM scheduler WHERE lead_id = %s AND delayer_db_internal_tag = %s;
             ''', [lead_id,internal_tag])
         self.connection.commit()
+
+
+    def print_record(self, prefix, record):
+        fields = [
+                'reminders_db_internal_tag',
+                'lead_id',
+                'reminders_db_internal_comment',
+                'next_action',
+                'event_date',
+                'cutoff',
+                'type',
+                'frequency_in_days_before_cutoff',
+                'frequency_in_days_after_cutoff',
+                'required_salesforce_fields' ,
+                'id'
+            ]
+        log = ""
+        for num,name in enumerate(fields):
+            field_value = record[num]
+            if isinstance(field_value , datetime):
+                log+=f"{name}: {record[num].strftime('%Y-%m-%d %H:%M')} -- "
+            else:
+                log += f"{name}: {record[num]} -- "
+        print(f"{prefix} | {log}")
+        print("--------------")
