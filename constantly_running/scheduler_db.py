@@ -100,25 +100,11 @@ class Scheduler():
 
 
     def print_record(self, prefix, record):
-        fields = [
-                'reminders_db_internal_tag',
-                'lead_id',
-                'reminders_db_internal_comment',
-                'next_action',
-                'event_date',
-                'cutoff',
-                'type',
-                'frequency_in_days_before_cutoff',
-                'frequency_in_days_after_cutoff',
-                'required_salesforce_fields' ,
-                'id'
-            ]
         log = ""
-        for num,name in enumerate(fields):
-            field_value = record[num]
+        for key,field_value in enumerate(record):
             if isinstance(field_value , datetime):
-                log+=f"{name}: {record[num].strftime('%Y-%m-%d %H:%M')} -- "
+                log+=f"{key}: {field_value.strftime('%Y-%m-%d %H:%M')} -- "
             else:
-                log += f"{name}: {record[num]} -- "
+                log += f"{key}: {field_value} -- "
         print(f"{prefix} | {log}")
-        print("--------------")
+        print("--------------") 

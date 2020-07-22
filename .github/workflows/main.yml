@@ -13,7 +13,6 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
       
@@ -42,3 +41,21 @@ jobs:
       run: |
         echo Zapier update
         cd zapier_integration && zapier push && cd ..
+
+    - name: Update delayer container if needed 
+      if: contains(steps.files.outputs.all, 'delayer')
+      run: |
+        echo Delayer update
+        ./delayer_cron_job/docker.sh <<< y
+    
+    - name: Update scheduler container if needed 
+      if: contains(steps.files.outputs.all, 'scheduler')
+      run: |
+        echo Scheduler update
+        ./scheduler_cron_job/docker.sh <<< y
+      
+    - name: Update lambdas if needed 
+      if: contains(steps.files.outputs.all, 'constantly_running')
+      run: |
+        echo Lambdas update
+        cd constantly_running/ && sls deploy
