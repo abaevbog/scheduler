@@ -98,7 +98,6 @@ class Scheduler():
             ''', [lead_id,internal_tag])
         self.connection.commit()
 
-
     def print_record(self, prefix, record):
         log = ""
         for key,field_value in enumerate(record):
