@@ -43,13 +43,13 @@ jobs:
         cd zapier_integration && zapier push && cd ..
 
     - name: Update delayer container if needed 
-      if: contains(steps.files.outputs.all, 'delayer')
+      if: contains(steps.files.outputs.all, 'delayer_cron_job')
       run: |
         echo Delayer update
         ./delayer_cron_job/docker.sh <<< y
     
     - name: Update scheduler container if needed 
-      if: contains(steps.files.outputs.all, 'scheduler')
+      if: contains(steps.files.outputs.all, 'scheduler_cron_job')
       run: |
         echo Scheduler update
         ./scheduler_cron_job/docker.sh <<< y
