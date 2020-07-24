@@ -16,6 +16,11 @@ class Testing(unittest.TestCase):
     def test_aaaaaa_db_setup(self):
         print("DB SETUP")
         database.create_delays_table() 
+        database.cursor.execute('''
+            TRUNCATE SALESFORCE_RECORDS;
+            truncate scheduler;
+            truncate delayer;       
+        ''')
         dummy = Dummy()
         database.add_new_record(**dummy.param_one)
         database.add_new_record(**dummy.param_two)   
