@@ -10,8 +10,6 @@ from delayer_db import Delayer
 
 class Database():
     def __init__(self, config):
-        print("Initing DB")
-        print(config)
         conn = psycopg2.connect(
             database = config.get('database'),
             user = config.get('user'), 
@@ -24,7 +22,6 @@ class Database():
         self.config = config
         self.scheduler = Scheduler(conn,self.cursor)
         self.delayer = Delayer(conn,self.cursor)
-        print("DN connected")
 
     def create_tables(self):
         self.scheduler.create_reminders_table()

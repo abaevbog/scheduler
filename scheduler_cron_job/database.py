@@ -25,7 +25,7 @@ class Database():
         now_pretty = str(now.strftime("%Y-%m-%d %H:%M"))
         recs = self.cursor.execute(
             f'''
-            SELECT * FROM SCHEDULER WHERE next_action <= %s::timestamp AND %s::timestamp <= event_date
+            SELECT * FROM SCHEDULER WHERE next_action <= %s::timestamp AND %s::timestamp <= event_date AND on_hold == FALSE;
             ''',[now_pretty, now_pretty])
         return self.cursor.fetchall()
 
@@ -104,7 +104,7 @@ class Database():
             SELECT sch.id FROM SCHEDULER sch INNER JOIN SALESFORCE_RECORDS sr
             ON sch.lead_id = sr.id  where 
             (sch.required_salesforce_fields IS NOT NULL AND sch.required_salesforce_fields::text[] <@ sr.satisfied)
-            OR (sr.status = 'SALE CANCELLED') OR (ARRAY['on_hold__c'] <@ sr.satisfied );
+            OR (sr.status = 'SALE CANCELLED');
             '''
         )
         return [row[0] for row in self.cursor.fetchall()]

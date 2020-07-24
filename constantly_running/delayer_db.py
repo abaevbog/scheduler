@@ -75,3 +75,14 @@ class Delayer():
              WHERE lead_id = %s AND delayer_db_internal_tag = %s AND additional_info = %s;
             ''', [trigger_date, lead_id, internal_tag, additional_info])
         self.connection.commit()
+
+    def print_record(self, prefix, record):
+        log = ""
+        for key in record:
+            field_value = record[key]
+            if isinstance(field_value , datetime):
+                log+=f"{key}: {field_value.strftime('%Y-%m-%d %H:%M')} -- "
+            else:
+                log += f"{key}: {field_value} -- "
+        print(f"{prefix} | {log}")
+        print("--------------") 

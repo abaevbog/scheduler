@@ -18,6 +18,7 @@ db = Database(config)
 def add(event,context):
     body = json.loads(event['body'])
     db.delayer.add_record(**body)
+    db.delayer.print_record("DELAYER - ADD ",body)
     return {"statusCode":200, "body": json.dumps({"message" : "Record added to DB"})}
 
 def request_fields(event,context):
@@ -31,6 +32,7 @@ def update(event,context):
     internal_tag = body['delayer_db_internal_tag']
     additional_info = body['additional_info']
     db.delayer.update_record(lead_id, internal_tag,additional_info, new_trigger_date)
+    db.delayer.print_record("DELAYER - UPDATE ",body)
     return {"statusCode":200, "body": json.dumps({"message" : 'Record(s) updated'})}
 
 def delete_record(event,context):
@@ -38,4 +40,5 @@ def delete_record(event,context):
     internal_tag = body['delayer_db_internal_tag']
     lead_id = body['lead_id']
     db.delayer.delete_record(lead_id,internal_tag)
+    db.delayer.print_record("DELAYER - DELETE ",body)
     return {"statusCode":200, "body": json.dumps({"message" : "Record deleted"})}

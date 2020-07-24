@@ -100,7 +100,8 @@ class Scheduler():
 
     def print_record(self, prefix, record):
         log = ""
-        for key,field_value in enumerate(record):
+        for key in record:
+            field_value = record[key]
             if isinstance(field_value , datetime):
                 log+=f"{key}: {field_value.strftime('%Y-%m-%d %H:%M')} -- "
             else:
