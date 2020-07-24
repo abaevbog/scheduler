@@ -35,6 +35,8 @@ def main():
     database = Database(config)
     salesforce = Salesforce(config)
     salesforce.authenticate()
+    # toss away old status table
+    database.truncate_salesforce_records()
     #print("SCHEDULER: SALESFORCE AUTHENTICATION COMPLETE")
     # delete records that have been satisfied to not 
     # send people reminders about things they did
@@ -60,9 +62,6 @@ def main():
     #print("SCHEDULER: ONE TIME RECORDS EXPIRED")
     # update when renewable actions should be triggered next
     database.update_next_dates_of_due_actions()
-    #print("SCHEDULER: NEXT DATES UPDATED")
-    # toss away old status table
-    database.truncate_salesforce_records()
     #print("SCHEDULER:DONE")
     database.connection.close()
 
