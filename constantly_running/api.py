@@ -22,5 +22,9 @@ def create_tables(event,context):
 
 
 def fetch_zap_codes(event,context):
+    with open('./tmp/scheduler.conf', 'wb') as f:
+        s3.download_fileobj(os.environ['BUCKET'], 'config/scheduler.conf', f)
+
     config = configparser.ConfigParser()
-    config.read('scheduler.conf')
+    config.read('./tmp/scheduler.conf')
+    
