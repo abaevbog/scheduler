@@ -12,6 +12,21 @@ provider:
   vpc: ${file(./scheduler.yaml):vpc}
   environment: ${file(./scheduler.yaml):database}
   endpointType: REGIONAL
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - "s3:GetObject"
+        - "s3:ListBucket"
+        - "s3:HeadObject"
+        - "s3:PutObject"
+      Resource: ${file(./variables.yml):bucket_archive_resource}  
+    - Effect: Allow
+      Action:
+        - "s3:GetObject"
+        - "s3:ListBucket"
+        - "s3:HeadObject"
+        - "s3:PutObject"
+      Resource: ${file(./variables.yml):bucket_for_creds_resource}  
     
 custom:
   pythonRequirements:

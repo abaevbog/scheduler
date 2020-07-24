@@ -3,7 +3,9 @@ import os
 sys.path.insert(1,os.getcwd() + "/db")
 from database import Database
 import json
-
+import configparser
+import boto3 
+s3 = boto3.client('s3')
 
 database =  os.environ['DB_NAME'],
 user = os.environ['DB_USER'], 
@@ -19,3 +21,6 @@ def create_tables(event,context):
     return {"statusCode":200, "body": json.dumps({"message" : "Tables created!"})}
 
 
+def fetch_zap_codes(event,context):
+    config = configparser.ConfigParser()
+    config.read('scheduler.conf')

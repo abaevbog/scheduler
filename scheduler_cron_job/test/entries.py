@@ -10,8 +10,8 @@ class Dummy:
             'cutoff':None,
             'type':None,
             'url_to_hit':None,
-            'frequency_in_days_before_cutoff':None,
-            'frequency_in_days_after_cutoff': None,
+            'frequency_in_days_before_cutoff':3,
+            'frequency_in_days_after_cutoff': 1,
             'required_salesforce_fields' : None,
             'reminders_db_internal_comment' : 'This should not be touched'
         }
@@ -24,8 +24,8 @@ class Dummy:
             'cutoff':None,
             'type':None,
             'url_to_hit':None,
-            'frequency_in_days_before_cutoff':None,
-            'frequency_in_days_after_cutoff': None,
+            'frequency_in_days_before_cutoff':3,
+            'frequency_in_days_after_cutoff': 1,
             'required_salesforce_fields' : None,
             'reminders_db_internal_comment' : 'One time field that should be expired.'
         }

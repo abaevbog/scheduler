@@ -63,7 +63,7 @@ def main():
     #print("SCHEDULER: NEXT DATES UPDATED")
     # toss away old status table
     database.truncate_salesforce_records()
-    print("SCHEDULER:DONE")
+    #print("SCHEDULER:DONE")
     database.connection.close()
 
 

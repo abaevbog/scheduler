@@ -25,7 +25,7 @@ class Database():
         now_pretty = str(now.strftime("%Y-%m-%d %H:%M"))
         recs = self.cursor.execute(
             f'''
-            SELECT * FROM DELAYER WHERE trigger_date <= %s::timestamp AND on_hold == FALSE;
+            SELECT * FROM DELAYER WHERE trigger_date <= %s::timestamp AND NOT on_hold;
             ''',[now_pretty])
         return self.cursor.fetchall()
 

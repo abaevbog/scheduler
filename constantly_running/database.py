@@ -5,7 +5,6 @@ import sys
 from datetime import datetime
 from random import randint
 from scheduler_db import Scheduler
-print(sys.path)
 from delayer_db import Delayer
 
 class Database():
