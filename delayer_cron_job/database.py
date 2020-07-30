@@ -30,8 +30,7 @@ class Database():
         return self.cursor.fetchall()
 
 
-    # delete records that do not have CUTOFF value (meaning, 
-    # ones that require only one action)
+    # delete records that are expired
     def delete_expired_records(self):
         tz = pytz.timezone('America/New_York')
         now = datetime.now(tz)

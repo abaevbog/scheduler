@@ -38,8 +38,8 @@ def update(event,context):
 
 def delete_record(event,context):
     body = json.loads(event['body'])
-    internal_tag = body['internal_tag']
+    internal_tag = body['scheduler_db_internal_tag']
     lead_id = body['lead_id']
-    db.delayer.delete_record(lead_id,internal_tag)
+    db.scheduler.delete_record(lead_id,internal_tag)
     db.scheduler.print_record("SCHEDULER - DELETE ",body)
     return {"statusCode":200, "body": json.dumps({"message" : "Record deleted"})}

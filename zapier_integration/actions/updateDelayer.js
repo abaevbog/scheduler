@@ -42,7 +42,8 @@ const update = (z, bundle) => {
               'vp-02-01h': 'VP-02-01h 2d invoice to todoist and slack',
               'pm-03-01' : 'weekly reminders',
               'ycb-reminders' : 'Youcanbookme: communication with the client',
-              'pm-05-03' : 'Ask PM and QCL if toilet needs removal'
+              'pm-05-03' : 'Ask PM and QCL if toilet needs removal',
+              'pm-05-02' : 'Ask PM and QCL if toilet needs to be ordered'
             }
         },
         {

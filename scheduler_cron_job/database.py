@@ -25,7 +25,9 @@ class Database():
         now_pretty = str(now.strftime("%Y-%m-%d %H:%M"))
         recs = self.cursor.execute(
             f'''
-            SELECT * FROM SCHEDULER WHERE next_action <= %s::timestamp AND %s::timestamp <= event_date AND NOT on_hold;
+            SELECT * FROM SCHEDULER WHERE NOT on_hold AND 
+            (next_action <= %s::timestamp AND %s::timestamp <= event_date)
+            OR  (next_action <= %s::timestamp AND event_date is NULL);
             ''',[now_pretty, now_pretty])
         return self.cursor.fetchall()
 
