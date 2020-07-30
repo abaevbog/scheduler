@@ -2,6 +2,7 @@ var oneTime = require('./actions/oneTimeAction');
 var delayerUpdate = require('./actions/updateDelayer');
 var delayerDelete = require('./actions/deleteFromDelayer');
 var recurring = require('./actions/recurringAction');
+var recurringDelete = require('./actions/deleteRecurringAction');
 var update = require('./actions/updateReminders');
 
 module.exports = {
@@ -22,7 +23,8 @@ module.exports = {
     [recurring.key]: recurring,
     [update.key]: update,
     [delayerUpdate.key] : delayerUpdate,
-    [delayerDelete.key] : delayerDelete 
+    [delayerDelete.key] : delayerDelete,
+    [recurringDelete.key]: recurringDelete
   },
 
   resources: {},
