@@ -9,7 +9,6 @@ app: database_client
 provider:
   name: aws
   runtime: python3.8
-  vpc: ${file(./scheduler.yaml):vpc}
   environment: ${file(./scheduler.yaml):database}
   endpointType: REGIONAL
   iamRoleStatements:
@@ -19,14 +18,12 @@ provider:
         - "s3:ListBucket"
         - "s3:HeadObject"
         - "s3:PutObject"
-      Resource: ${file(./variables.yml):bucket_archive_resource}  
+      Resource: arn:aws:s3:::basementremodeling-archive-12345/*
     - Effect: Allow
       Action:
-        - "s3:GetObject"
         - "s3:ListBucket"
-        - "s3:HeadObject"
-        - "s3:PutObject"
-      Resource: ${file(./variables.yml):bucket_for_creds_resource}  
+      Resource: arn:aws:s3:::email-templates-unique-12345
+        
     
 custom:
   pythonRequirements:
@@ -38,6 +35,7 @@ custom:
 functions:
 
   scheduler_add:
+    vpc: ${file(./scheduler.yaml):vpc}
     handler: scheduler_api.add
     events:
     - http:
@@ -48,6 +46,7 @@ functions:
     timeout: 15
 
   scheduler_update:
+    vpc: ${file(./scheduler.yaml):vpc}
     handler: scheduler_api.update
     events:
     - http:
@@ -58,6 +57,7 @@ functions:
     timeout: 15  
 
   scheduler_fields:
+    vpc: ${file(./scheduler.yaml):vpc}
     handler: scheduler_api.request_fields
     events:
     - http:
@@ -66,6 +66,7 @@ functions:
     timeout: 5
 
   scheduler_delete:
+    vpc: ${file(./scheduler.yaml):vpc}
     handler: scheduler_api.delete_record
     events:
     - http:
@@ -76,6 +77,7 @@ functions:
     timeout: 5
   
   delayer_fields:
+    vpc: ${file(./scheduler.yaml):vpc}
     handler: delayer_api.request_fields
     events:
     - http:
@@ -84,6 +86,7 @@ functions:
     timeout: 5
 
   delayer_add:
+    vpc: ${file(./scheduler.yaml):vpc}
     handler: delayer_api.add
     events:
     - http:
@@ -94,6 +97,7 @@ functions:
     timeout: 15
 
   delayer_delete:
+    vpc: ${file(./scheduler.yaml):vpc}
     handler: delayer_api.delete_record
     events:
     - http:
@@ -104,6 +108,7 @@ functions:
     timeout: 5
 
   delayer_update:
+    vpc: ${file(./scheduler.yaml):vpc}
     handler: delayer_api.update
     events:
     - http:
@@ -114,6 +119,7 @@ functions:
     timeout: 5
 
   create-tables:
+    vpc: ${file(./scheduler.yaml):vpc}
     handler: api.create_tables
     events:
     - http:
@@ -122,6 +128,14 @@ functions:
         authorizer:
           arn: arn:aws:lambda:us-east-1:612185335394:function:utilities-dev-authorizer
     timeout: 15
+
+  fetch-zap-codes:
+    handler: api.fetch_zap_codes
+    events:
+    - http:
+        path: /codes
+        method: get
+    timeout: 5
 
 
 plugins:
