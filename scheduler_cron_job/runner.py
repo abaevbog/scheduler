@@ -54,7 +54,7 @@ def main():
         reminders_db_internal_tag = action[2]
         action_type = action[7]
         requests.post(url_to_hit, data={'lead_id':lead_id, 'internal_tag':reminders_db_internal_tag, 'type':action_type}) #we'll have to send more stuff in body. What other fields should be sent?
-        print(f"SCHEDULER: Triggered event for {lead_id} with status {reminders_db_internal_tag}")
+        database.print_record("SCHEDULER: Triggered ",action)
         # sleep to not overload api gateway
         sleep(1)
     #print("SCHEDULER: ALL ACTIONS TAKEN")

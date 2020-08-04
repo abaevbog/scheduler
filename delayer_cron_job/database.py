@@ -17,33 +17,27 @@ class Database():
         self.connection = conn
         self.cursor = conn.cursor()
         self.config = config
+        self.now_rounded = datetime.now(pytz.timezone('America/New_York')).replace(minute=0).strftime("%Y-%m-%d %H:%M")
+        self.connection.autocommit = True
 
     # fetch actions that need to happen right now
     def fetch_due_actions(self):
-        tz = pytz.timezone('America/New_York')
-        now = datetime.now(tz)
-        now_pretty = str(now.strftime("%Y-%m-%d %H:%M"))
         recs = self.cursor.execute(
             f'''
             SELECT * FROM DELAYER WHERE trigger_date <= %s::timestamp AND NOT on_hold;
-            ''',[now_pretty])
+            ''',[self.now_rounded])
         return self.cursor.fetchall()
 
 
     # delete records that are expired
     def delete_expired_records(self):
-        tz = pytz.timezone('America/New_York')
-        now = datetime.now(tz)
-        now_pretty = now.strftime("%Y-%m-%d %H:%M")
         self.cursor.execute(
             f'''
             DELETE FROM DELAYER  WHERE trigger_date <= %s::timestamp RETURNING *;
-            ''',[now_pretty])
+            ''',[self.now_rounded])
         deleted = self.cursor.fetchall()
         for d in deleted:
             self.print_record("DELAYER DATABASE EXPIRED",d)
-        self.connection.commit()
-
 
 
     def print_record(self, prefix, record):
@@ -80,7 +74,6 @@ class Database():
                 id                SERIAL     PRIMARY KEY      NOT NULL
                 );
             ''')
-        self.connection.commit()
 
 
     def add_new_record(self,**kwargs):
@@ -106,4 +99,3 @@ class Database():
             VALUES 
             ({values_placeholders})
             ''',values)
-        self.connection.commit()

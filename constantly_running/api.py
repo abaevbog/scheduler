@@ -13,14 +13,14 @@ password = os.environ['DB_PASSWORD'],
 host = os.environ['DB_HOST'], 
 port = os.environ['DB_PORT']
 config = {'database':database[0],'user':user[0],'password':password[0],'host':host[0],'port':port }
-print(config)
-db = Database(config)
-print("DB DONE")
+#print(config)
+#db = Database(config)
+#print("DB DONE")
 
 
 def create_tables(event,context):
     print("Creating tables")
-    db.create_tables()
+    #db.create_tables()
     return {"statusCode":200, "body": json.dumps({"message" : "Tables created!"})}
 
 

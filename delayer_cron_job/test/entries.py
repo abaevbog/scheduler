@@ -6,7 +6,7 @@ class Dummy:
             'delayer_db_internal_tag': 'vp-01-01a',
             'lead_id':'00Qf400000OV4zKEAT',
             'delayer_db_internal_comment': 'Not due',
-            'trigger_date': '2020-07-26 18:00',
+            'trigger_date': '2020-09-26 18:00',
             'additional_info': None
         }
         # due, delete

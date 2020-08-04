@@ -94,7 +94,7 @@ class Scheduler():
     def delete_record(self,lead_id,internal_tag):
         self.cursor.execute(
             '''
-            DELETE FROM scheduler WHERE lead_id = %s AND delayer_db_internal_tag = %s;
+            DELETE FROM scheduler WHERE lead_id = %s AND reminders_db_internal_tag = %s;
             ''', [lead_id,internal_tag])
         self.connection.commit()
 

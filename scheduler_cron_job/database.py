@@ -1,8 +1,10 @@
 import psycopg2
 import os 
 import pytz
-from datetime import datetime
+from datetime import datetime, timedelta
 from random import randint
+
+FIVE_MINUTES = timedelta(minutes=5)
 
 #make sure you don't forget to close connection
 class Database():
@@ -12,23 +14,23 @@ class Database():
             user = config.get('database','DB_USER'), 
             password = config.get('database','DB_PASSWORD'), 
             host = config.get('database','DB_HOST'), 
-            port = config.get('database','DB_PORT')
+            port = config.get('database','DB_PORT'),
         )
         self.connection = conn
         self.cursor = conn.cursor()
         self.config = config
+        self.now_rounded = datetime.now(pytz.timezone('America/New_York')).replace(minute=0).strftime("%Y-%m-%d %H:%M")
+        self.connection.autocommit = True
+
 
     # fetch actions that need to happen right now
     def fetch_due_actions(self):
-        tz = pytz.timezone('America/New_York')
-        now = datetime.now(tz)
-        now_pretty = str(now.strftime("%Y-%m-%d %H:%M"))
         recs = self.cursor.execute(
             f'''
             SELECT * FROM SCHEDULER WHERE NOT on_hold AND 
-            (next_action <= %s::timestamp AND %s::timestamp <= event_date)
-            OR  (next_action <= %s::timestamp AND event_date is NULL);
-            ''',[now_pretty, now_pretty])
+            ((next_action <= %s::timestamp AND %s::timestamp <= event_date)
+            OR  (next_action <= %s::timestamp AND event_date is NULL));
+            ''',[self.now_rounded, self.now_rounded , self.now_rounded ])
         return self.cursor.fetchall()
 
     def delete_records(self, lead_ids):   
@@ -37,50 +39,47 @@ class Database():
             DELETE FROM SCHEDULER WHERE id = Any(%s) RETURNING *;
             ''', [lead_ids])
         deleted = self.cursor.fetchall()
-        self.connection.commit()
         return deleted 
 
     # update date of when the action should be triggered next time
     def update_next_dates_of_due_actions(self):
-        tz = pytz.timezone('America/New_York')
-        now = datetime.now(tz)
-        now_pretty = now.strftime("%Y-%m-%d %H:%M")
         self.cursor.execute(
             f'''
             UPDATE SCHEDULER
-            SET next_action= %s::timestamp + due.frequency_in_days_before_cutoff * interval '1 day'
-            FROM (SELECT * FROM SCHEDULER
-                WHERE next_action <= %s::timestamp) AS due
-            WHERE scheduler.next_action < scheduler.cutoff RETURNING SCHEDULER.id;
-            ''', [now_pretty,now_pretty])
-        updated_ids = [row[0] for row in self.cursor.fetchall()]
+            SET next_action= %s::timestamp + frequency_in_days_before_cutoff * interval '1 day'
+            WHERE next_action <= %s::timestamp AND next_action < cutoff
+            RETURNING *;
+            ''', [self.now_rounded, self.now_rounded ])
+        updated = self.cursor.fetchall()
+        for x in updated:
+            self.print_record('SCHEDULER UPDATED BEFORE CUTOFF -- ',x)
+        updated_ids = [row[10] for row in updated]
         self.cursor.execute('''
             UPDATE SCHEDULER
-            SET next_action= %s::timestamp + due.frequency_in_days_after_cutoff * interval '1 day'
-            FROM (SELECT * FROM SCHEDULER
-                WHERE next_action <= %s::timestamp) AS due
-            WHERE scheduler.next_action >= scheduler.cutoff AND NOT( scheduler.id = ANY(%s) );
-            ''',[now_pretty,now_pretty,updated_ids])
-        self.connection.commit()
+            SET next_action= %s::timestamp + frequency_in_days_after_cutoff * interval '1 day'
+            WHERE next_action <= %s::timestamp AND next_action >= cutoff AND NOT( id = ANY(%s) )
+            RETURNING *;
+            ''',[self.now_rounded,self.now_rounded ,updated_ids])
+        updated = self.cursor.fetchall()
+        for x in updated:
+            self.print_record('SCHEDULER UPDATED AFTER CUTOFF -- ',x)
+   
 
     # delete records that reached event date
     def delete_expired_records(self):
-        tz = pytz.timezone('America/New_York')
-        now = datetime.now(tz)
-        now_pretty = now.strftime("%Y-%m-%d %H:%M")
         self.cursor.execute(
             f'''
-            DELETE FROM SCHEDULER  WHERE event_date <= %s::timestamp RETURNING *;
-            ''',[now_pretty])
+            DELETE FROM SCHEDULER  WHERE event_date <= %s::timestamp
+            AND NOT on_hold RETURNING *;
+            ''',[self.now_rounded ])
         deleted = self.cursor.fetchall()
         for d in deleted:
             self.print_record("SCHEDULER DATABASE EXPIRED",d)
-        self.connection.commit()
+     
     
     def truncate_salesforce_records(self):
         self.cursor.execute("TRUNCATE SALESFORCE_RECORDS;")
-        self.connection.commit()
-
+    
 
     def insert_data_to_salesforce_recs(self, data):
         placeholders = ",".join(["(%s,%s,%s,%s)" for i in data])
@@ -95,7 +94,6 @@ class Database():
         INSERT INTO salesforce_records (id, name, satisfied, not_satisfied)
         VALUES {placeholders}
         ''', recs_array)
-        self.connection.commit()
 
         
     #  find records that have all necessary checkboxes checked in salesforce
@@ -170,7 +168,6 @@ class Database():
             VALUES 
             ({values_placeholders})
             ''',values)
-        self.connection.commit()
 
         
     def create_main_table(self):
@@ -190,7 +187,6 @@ class Database():
                 ID   SERIAL     PRIMARY KEY      NOT NULL
                 );
             ''')
-        self.connection.commit()
 
     def create_salesforce_recs_table(self):
         self.cursor.execute(
@@ -203,4 +199,3 @@ class Database():
               status VARCHAR(30)
             );
             ''')
-        self.connection.commit()

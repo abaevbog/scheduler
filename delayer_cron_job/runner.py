@@ -20,7 +20,7 @@ def main():
         delayer_db_internal_tag = action[2]
         additional_info = action[4]
         requests.post(url_to_hit, data={'lead_id':lead_id, 'internal_tag':delayer_db_internal_tag, 'additional_info':additional_info})
-        print(f"DELAYER: Triggered event for {lead_id} with {delayer_db_internal_tag}")
+        database.print_record("DELAYER: Triggered",action)
         # sleep to not overload api gateway
         sleep(1)
     #print("DELAYER: ALL ACTIONS TAKEN")

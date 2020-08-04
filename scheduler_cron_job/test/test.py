@@ -32,7 +32,6 @@ class Testing(unittest.TestCase):
         database.add_new_record(**dummy.param_two_email)
         database.add_new_record(**dummy.param_two_text)
         database.add_new_record(**dummy.param_three)
-        database.add_new_record(**dummy.param_four)
         database.add_new_record(**dummy.param_five)
         database.add_new_record(**dummy.param_seven)
         database.create_salesforce_recs_table()     
@@ -54,9 +53,9 @@ class Testing(unittest.TestCase):
         print("ACTIONS DUE")
         due_actions = database.fetch_due_actions()
         comments = [rec[0] for rec in due_actions]
+        print(comments)
         self.assertIn('Next action due, after cutoff',comments )
         self.assertIn('Next action due, before cutoff' , comments )
-        self.assertIn('One time field that should be expired.' , comments)
 
 
     def test_eeeeeeee_update_next_action_date(self):

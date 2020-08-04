@@ -1,3 +1,13 @@
+const listZapCodes = (z, bundle) => {
+  z.console.log(z.inputData)
+  const promise = z.request(
+    'https://usx0yjoww7.execute-api.us-east-1.amazonaws.com/dev/codes'
+  )
+  return promise.then(response => response.json)
+}
+
+
+
 
 
 const update = (z, bundle) => {
@@ -34,17 +44,7 @@ const update = (z, bundle) => {
             key: 'delayer_db_internal_tag',
             required: true,
             label: 'delayer database internal tag of the entry that will be updated',
-            choices: { 
-              'vp-01-01c' : 'VP-01 flow',
-              'vp-02-01c': 'VP-02-01c: catch start date webhook',
-              'vp-02-01i': 'VP-02-01i send delayer',
-              'vp-02-01g': 'VP-02-01g QCL and 2d invoice',
-              'vp-02-01h': 'VP-02-01h 2d invoice to todoist and slack',
-              'pm-03-01' : 'weekly reminders',
-              'ycb-reminders' : 'Youcanbookme: communication with the client',
-              'pm-05-03' : 'Ask PM and QCL if toilet needs removal',
-              'pm-05-02' : 'Ask PM and QCL if toilet needs to be ordered'
-            }
+            dynamic: 'find_codes.id.name'
         },
         {
           key: 'additional_info',
