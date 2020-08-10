@@ -1,19 +1,33 @@
 from database import Database
+from salesforce import Salesforce
 from time import sleep
 import requests 
 import os
 import configparser
 import sys
 
+def update_precon_or_predemo_dependend_entries(db,salesforce):
+    # get all lead ids from db
+    all_lead_ids = db.fetch_all_lead_ids()
+    if all_lead_ids == []:
+        return
+    # fetch records with given lead ids
+    recs = salesforce.get_records(all_lead_ids)
+    db.insert_salesforce_data(recs)
+    # then, we need to update action date for those fields that
+    # depend on precon/predemo
+    db.update_start_date_depending_on_precon()
+
 def main():
     #print("DELAYER: EXECUTION BEGAN")
     config = configparser.ConfigParser()
     config.read('scheduler.conf')
     database = Database(config)
+    salesforce = Salesforce(config)
+    update_precon_or_predemo_dependend_entries(database,salesforce)
     # find what actions are to be activated or reminded now
     due_actions = database.fetch_due_actions()
     # go through all records, hit correct urls
-    #print("DELAYER: DUE ACTIONS FETCHED")
     for action in due_actions:
         url_to_hit = config.get('urls',action[2])
         lead_id = action[1]

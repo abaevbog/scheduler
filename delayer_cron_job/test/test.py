@@ -2,6 +2,7 @@ import sys
 sys.path.append('/Users/bogdanabaev/RandomProgramming/BasementRemodeling/scheduler/delayer_cron_job/')
 import unittest
 from database import Database
+from salesforce import Salesforce
 import configparser
 from entries import Dummy
 from datetime import datetime, timedelta
@@ -9,6 +10,8 @@ from datetime import datetime, timedelta
 config = configparser.ConfigParser()
 with open(r'scheduler.conf') as f:
     config.read_file(f)
+salesforce = Salesforce(config)
+salesforce.authenticate()
 database = Database(config)
 
 class Testing(unittest.TestCase):
@@ -23,9 +26,24 @@ class Testing(unittest.TestCase):
         ''')
         dummy = Dummy()
         database.add_new_record(**dummy.param_one)
-        database.add_new_record(**dummy.param_two)   
+        database.add_new_record(**dummy.param_two)
+        database.add_new_record(**dummy.param_three) 
+        database.add_new_record(**dummy.param_four)    
 
-    def test_bbbb_delete_due_recs(self):
+
+    def test_bbbbbbb_renew_predemo_dates(self):
+        print("RENEW PRECON_DATES")
+        all_lead_ids = database.fetch_all_lead_ids()
+        recs = salesforce.get_records(all_lead_ids)
+        print(recs)
+        database.insert_salesforce_data(recs)
+        database.update_start_date_depending_on_precon()
+        database.cursor.execute("select * from delayer where delayer_db_internal_comment='Precon date TO BE UPDATED'")
+        x = database.cursor.fetchall()
+        print(x)
+        self.assertTrue(x[0][3].day == 13)
+
+    def test_ccccc_delete_due_recs(self):
         print("DELETE OLD RECORDS")
         due = database.fetch_due_actions()
         self.assertEqual(due[0][0], 'Due')
@@ -34,7 +52,7 @@ class Testing(unittest.TestCase):
         self.assertTrue(database.cursor.fetchall() == [])
 
 
-    def test_cccc_ensure_new(self):
+    def test_dddddd_ensure_new(self):
         print("ENSURE NOT DUE IS THERE")
         database.cursor.execute("select * from delayer where delayer_db_internal_comment='Not due'")
         res = database.cursor.fetchall()

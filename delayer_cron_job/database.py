@@ -28,6 +28,10 @@ class Database():
             ''',[self.now_rounded])
         return self.cursor.fetchall()
 
+    # fetch actions that need to happen right now
+    def fetch_all_lead_ids(self):
+        self.cursor.execute("SELECT lead_id FROM delayer;")
+        return [row[0] for row in self.cursor.fetchall()]
 
     # delete records that are expired
     def delete_expired_records(self):
@@ -60,7 +64,57 @@ class Database():
         print("--------------")
 
 
-### FOR TESTING:
+    def insert_salesforce_data(self, data):
+        print("Inserting",data)
+        for dic in data:
+            precon = dic['PRECON_DATE__c']
+            predemo = dic['PREDEMO_DATE__c']
+            lead = dic['Id']
+            on_hold = dic['ON_HOLD__c']
+            self.cursor.execute(
+                f'''
+                UPDATE delayer
+                SET precon_or_predemo_date = %s::timestamp
+                WHERE lead_id = %s AND wait_for_precon_or_predemo = 'PRECON'
+                RETURNING *;
+                ''',[precon, lead])
+            updated = self.cursor.fetchall()
+            for d in updated:
+                self.print_record("DELAYER INSERTED",d)
+            self.cursor.execute(
+                f'''
+                UPDATE delayer
+                SET precon_or_predemo_date = %s::timestamp
+                WHERE lead_id = %s AND wait_for_precon_or_predemo = 'PREDEMO'
+                RETURNING *;
+                ''',[predemo, lead])
+            updated = self.cursor.fetchall()
+            for d in updated:
+                self.print_record("DELAYER INSERTED",d)
+            self.cursor.execute(
+                f'''
+                UPDATE delayer
+                SET on_hold = %s
+                WHERE lead_id = %s
+                RETURNING *;
+                ''', [on_hold, predemo])
+            updated = self.cursor.fetchall()
+            for d in updated:
+                self.print_record("DELAYER INSERTED",d)
+
+
+    def update_start_date_depending_on_precon(self):
+        self.cursor.execute(
+            f'''
+            UPDATE delayer
+            SET trigger_date = precon_or_predemo_date::timestamp - days_before_precon_or_predemo * interval '1 day'
+            WHERE precon_or_predemo_date is not NULL AND trigger_date != precon_or_predemo_date::timestamp - days_before_precon_or_predemo * interval '1 day'
+            RETURNING *;
+            ''', [self.now_rounded, self.now_rounded ])
+        updated = self.cursor.fetchall()
+        for d in updated:
+            self.print_record("DELAYER DATABASE UPDATED BASED ON PRECON/PREDEMO",d)
+
 
     def create_delays_table(self):
         self.cursor.execute(
@@ -82,7 +136,11 @@ class Database():
                 'lead_id':None,
                 'delayer_db_internal_comment':None,
                 'trigger_date':None,
-                'additional_info':None
+                'additional_info':None,
+                'wait_for_precon_or_predemo':None,
+                'days_before_precon_or_predemo':None,
+                'precon_or_predemo':None,
+                'precon_or_predemo_date':None
             }
         for key in db_fields.keys():
             if key in dict(kwargs.items()):
