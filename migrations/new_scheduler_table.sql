@@ -1,11 +1,11 @@
 SET timezone = 'America/New_York';
 
 /*reminders settings*/
-CREATE TYPE settings AS 
+CREATE TYPE cutoff AS 
 (
-frequency_cutoff timestamp,
-freq_before_cutoff int,
-freq_after_cutoff int
+days_before_start  int,
+freq_before int,
+freq_after int
 );
 
 CREATE TYPE trigger_date_definition AS
@@ -22,7 +22,7 @@ lead_id        VARCHAR(250)        NOT NULL,
 project_name   VARCHAR(250)        NOT NULL,
 tag            VARCHAR(250)        NOT NULL,
 additional_info      TEXT                 ,
-settings        settings          NOT NULL,
+cutoff          cutoff          NOT NULL,
 trigger_date_definition   trigger_date_definition,
 required_salesforce_fields VARCHAR(250)[] default array[]::varchar[250],
 ID   SERIAL     PRIMARY KEY      NOT NULL,

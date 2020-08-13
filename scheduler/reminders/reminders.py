@@ -10,6 +10,8 @@ from my_operator import Operator
 #3. fetch due actions
 #4. Update records that are past now according to their rules
 
+
+# CUTOFF DATE doesn't change so far: make it depend on start date
 class Reminders(Operator):
     def __init__(self,config):
         super().__init__(config,"reminder")
@@ -38,6 +40,7 @@ class Reminders(Operator):
         deleted = self.cursor.fetchall()
         for d in deleted:
             self.print_record("REMINDER EXPIRED",d)
+        return deleted
 
 
     #  find records that have all necessary checkboxes checked in salesforce
@@ -58,31 +61,39 @@ class Reminders(Operator):
         deleted = self.cursor.fetchall()
         for d in deleted:
             self.print_record('REMINDER SATISFIED DELETED ', d)
+        return deleted
 
 
     # update date of when the action should be triggered next time
     def update_records_after_trigger(self):
         self.cursor.execute(
-            f'''
+            '''
             UPDATE reminder
-            SET trigger_date_definition.next_date = %s::timestamp + (settings).freq_before_cutoff * interval '1 day'
-            WHERE (trigger_date_definition).next_date <= %s::timestamp AND (trigger_date_definition).next_date < (settings).frequency_cutoff
+            SET trigger_date_definition.next_date = %s::timestamp + (cutoff).freq_before * interval '1 day'
+            FROM salesforce_recs as sf
+            WHERE reminder.lead_id = sf.id
+                AND (trigger_date_definition).next_date <= %s::timestamp 
+                AND %s::timestamp < sf.START_DATE - (reminder).cutoff.days_before_start * interval '1 day'
             RETURNING *;
-            ''', [self.now_rounded, self.now_rounded ])
-        updated = self.cursor.fetchall()
-        for x in updated:
+            ''', [self.now_rounded, self.now_rounded, self.now_rounded ])
+        updated_before = self.cursor.fetchall()
+        for x in updated_before:
             self.print_record('REMIMDER UPDATED BEFORE CUTOFF -- ',x)
-        updated_ids = [row[10] for row in updated]
+        updated_ids = [row[7] for row in updated_before]
         self.cursor.execute('''
             UPDATE reminder
-            SET trigger_date_definition.next_date = %s::timestamp + (settings).freq_after_cutoff * interval '1 day'
-            WHERE (trigger_date_definition).next_date <= %s::timestamp AND (trigger_date_definition).next_date >= (settings).frequency_cutoff
-            AND NOT( id = ANY(%s))
+            SET trigger_date_definition.next_date = %s::timestamp + (cutoff).freq_after * interval '1 day'
+            FROM salesforce_recs as sf
+            WHERE reminder.lead_id = sf.id 
+                AND (trigger_date_definition).next_date <= %s::timestamp
+                AND %s::timestamp >= sf.START_DATE - (reminder).cutoff.days_before_start * interval '1 day'
+                AND NOT( reminder.id = ANY(%s))
             RETURNING *;
-            ''',[self.now_rounded,self.now_rounded ,updated_ids])
-        updated = self.cursor.fetchall()
-        for x in updated:
+            ''',[self.now_rounded, self.now_rounded,self.now_rounded ,updated_ids])
+        updated_after = self.cursor.fetchall()
+        for x in updated_after:
             self.print_record('REMINDER UPDATED AFTER CUTOFF -- ',x)
+        return updated_before + updated_after
 
 
     def update_records_before_trigger(self):

@@ -50,7 +50,6 @@ class Operator(ABC):
             INSERT INTO salesforce_recs ({field_names})
             VALUES {placeholders}
         ''', recs_array)
-        print("ADDED SALESFORCE RECORDS")
 
     def get_salesforce_data(self):
         s = Salesforce(self.config)
@@ -78,6 +77,7 @@ class Operator(ABC):
         updated = self.cursor.fetchall()
         for d in updated:
             self.print_record(f"{self.operator} DATABASE UPDATED BASED ON PRECON/PREDEMO",d)
+        return updated
 
     def truncate_salesforce_records(self):
         self.cursor.execute("TRUNCATE SALESFORCE_RECS;")
@@ -93,6 +93,7 @@ class Operator(ABC):
             requests.post(url_to_hit, data={'lead_id':lead_id, 'internal_tag':tag, 'additional_info':additional_info})
             self.print_record(f"{self.operator}: Triggered ",action)
             sleep(1)
+
 
 
 
