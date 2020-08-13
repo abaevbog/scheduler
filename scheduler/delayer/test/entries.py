@@ -51,6 +51,11 @@ class Dummy:
             'project_name': 'start day incorect, not due',
             'tag': 'vp-01-01',
             'trigger_date_definition': (7,'2020-10-07 13:00:00')
+        },{
+            'lead_id': '00Qf400000PofRcEAJ',
+            'project_name': 'start day incorect, not due',
+            'tag': 'vp-01-01',
+            'trigger_date_definition': (7,'2020-10-07 13:00:00')
         },
 
         ]

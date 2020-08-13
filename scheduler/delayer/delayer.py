@@ -3,21 +3,21 @@ sys.path.insert(1, '/Users/bogdanabaev/RandomProgramming/BasementRemodeling/sche
 from my_operator import Operator
 
 
-#DELAYER:
+#delayer_v2:
 #0. get updated start dates from salesforce
 #1. fetch due actions
 #2. delete expired records (reached start date)
 
 class Delayer(Operator):
     def __init__(self,config):
-        super().__init__(config,"delayer")
+        super().__init__(config,"delayer_v2")
 
     def fetch_due_actions(self):
         recs = self.cursor.execute(
             f'''
-            SELECT * FROM delayer,salesforce_recs
-            WHERE delayer.lead_id = salesforce_recs.id
-            AND (delayer).trigger_date_definition.next_date <= %s::timestamp;
+            SELECT * FROM delayer_v2,salesforce_recs
+            WHERE delayer_v2.lead_id = salesforce_recs.id
+            AND (delayer_v2).trigger_date_definition.next_date <= %s::timestamp;
             ''',[self.now_rounded])
         return self.cursor.fetchall()
 
@@ -25,11 +25,11 @@ class Delayer(Operator):
     def delete_expired_records(self):
         self.cursor.execute(
             f'''
-            DELETE FROM delayer
+            DELETE FROM delayer_v2
             WHERE lead_id IN 
-            (SELECT lead_id FROM delayer INNER JOIN salesforce_recs
-            ON delayer.lead_id = salesforce_recs.id
-            WHERE (delayer).trigger_date_definition.next_date <= %s::timestamp  
+            (SELECT lead_id FROM delayer_v2 INNER JOIN salesforce_recs
+            ON delayer_v2.lead_id = salesforce_recs.id
+            WHERE (delayer_v2).trigger_date_definition.next_date <= %s::timestamp  
             AND NOT ARRAY['ON_HOLD__c']::varchar[] <@ salesforce_recs.satisfied)
             RETURNING *;
             ''',[self.now_rounded ])

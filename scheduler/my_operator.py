@@ -7,20 +7,21 @@ import psycopg2.extras
 
 class Operator(ABC):
     def __init__(self, config, operator_type):
-        conn = psycopg2.connect(
+        self.conn = psycopg2.connect(
             database = config.get('database','DB_NAME'),
             user = config.get('database','DB_USER'), 
             password = config.get('database','DB_PASSWORD'), 
             host = config.get('database','DB_HOST'), 
             port = config.get('database','DB_PORT'),
         )
-        conn.autocommit = True  
-        self.cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        if operator_type not in ['delayer', 'reminder']:
+        self.conn.autocommit = True  
+        self.cursor = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        if operator_type not in ['delayer_v2', 'reminder']:
             raise Exception("Unknown operator type")
         self.operator = operator_type
         self.config = config
         self.now_rounded = datetime.now(pytz.timezone('America/New_York')).replace(minute=0).strftime("%Y-%m-%d %H:%M")
+
     @abstractmethod
     def update_records_before_trigger(self):
         pass
@@ -84,12 +85,12 @@ class Operator(ABC):
 
 
     def perform_trigger_actions(self):
-        due_actions = self.fetch_due_actions(self)
+        due_actions = self.fetch_due_actions()
         for action in due_actions:
             url_to_hit = config.get('urls',action[2])
-            lead_id = action[1]
-            tag = action[2]
-            additional_info = action[3]
+            lead_id = action['lead_id']
+            tag = action['tag']
+            additional_info = action['additional_info']
             requests.post(url_to_hit, data={'lead_id':lead_id, 'internal_tag':tag, 'additional_info':additional_info})
             self.print_record(f"{self.operator}: Triggered ",action)
             sleep(1)

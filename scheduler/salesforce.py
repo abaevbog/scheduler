@@ -74,13 +74,14 @@ class Salesforce:
         broken_into_satisfied_or_not = []
         keys = records[0].keys()
         for rec in records:
+            print(rec)
             d = {'id':rec['Id'],'name':rec['Name'],'status':rec['Status']}
             satisfied = [key.lower() for key in rec if rec[key]]
             not_satisfied = [key.lower() for key in rec if not rec[key]]
             d['satisfied'] = satisfied
             d['not_satisfied'] = not_satisfied
             d['START_DATE'] = rec['PRECON_DATE__c']
-            if d.get('PREDEMO_DATE__c') is not None:
+            if rec.get('PREDEMO_DATE__c') is not None:
                 d['START_DATE'] = rec['PREDEMO_DATE__c']
             broken_into_satisfied_or_not.append(d)
         return broken_into_satisfied_or_not

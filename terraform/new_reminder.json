@@ -1,0 +1,14 @@
+[{
+    "name" : "reminder",
+    "image" : "612185335394.dkr.ecr.us-east-1.amazonaws.com/scheduler_v2:latest",
+    "memory": 1024,
+    "command": ["reminder"],
+    "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+            "awslogs-group": "scheduler",
+            "awslogs-region": "us-east-1",
+            "awslogs-stream-prefix": "scheduler"
+        }
+    }
+}]

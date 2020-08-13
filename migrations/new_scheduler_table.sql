@@ -30,7 +30,7 @@ created_at timestamp default current_timestamp(0)
 );
 
 /*reminders table*/
-CREATE TABLE DELAYER
+CREATE TABLE DELAYER_V2
 (
 lead_id        VARCHAR(250)        NOT NULL,
 project_name   VARCHAR(250)        NOT NULL,
@@ -49,9 +49,9 @@ name VARCHAR(250),
 satisfied VARCHAR(250)[] default array[]::varchar[250],
 not_satisfied VARCHAR(250)[] default array[]::varchar[250] ,
 status VARCHAR(250),
-START_DATE timestamp,
+START_DATE timestamp
 );
 
 ALTER TABLE REMINDER ADD CONSTRAINT unique_entries UNIQUE (lead_id, project_name, tag);
 
-ALTER TABLE DELAYER ADD CONSTRAINT unique_entries UNIQUE (lead_id, project_name, tag);
+ALTER TABLE DELAYER_V2 ADD CONSTRAINT unique_entries UNIQUE (lead_id, project_name, tag);
