@@ -4,6 +4,8 @@ import pytz
 from datetime import datetime, timedelta
 from salesforce import Salesforce 
 import psycopg2.extras
+import requests
+from time import sleep
 
 class Operator(ABC):
     def __init__(self, config, operator_type):
@@ -62,17 +64,16 @@ class Operator(ABC):
 
 
     def sync_start_dates_w_salesforce(self):
-        reminder_condition = ""
-        if self.operator != "delayer":
-            reminder_condition = "AND (trigger_date_definition).next_date < sf.START_DATE - (trigger_date_definition).days_before_start * interval '1 day'"
+        sign = "!="
+        if self.operator == "reminder":
+            sign = "<"
         self.cursor.execute(
             f'''
             UPDATE {self.operator} as op
             SET trigger_date_definition.next_date = sf.START_DATE::timestamp - (trigger_date_definition).days_before_start * interval '1 day'
             FROM salesforce_recs as sf
             WHERE sf.id = op.lead_id
-            AND (trigger_date_definition).next_date != sf.START_DATE::timestamp - (trigger_date_definition).days_before_start * interval '1 day'
-            {reminder_condition}
+            AND (trigger_date_definition).next_date {sign} sf.START_DATE::timestamp - (trigger_date_definition).days_before_start * interval '1 day'
             RETURNING *;
             ''', [self.now_rounded, self.now_rounded ])
         updated = self.cursor.fetchall()
@@ -87,7 +88,8 @@ class Operator(ABC):
     def perform_trigger_actions(self):
         due_actions = self.fetch_due_actions()
         for action in due_actions:
-            url_to_hit = config.get('urls',action[2])
+            tag = action['tag']
+            url_to_hit = self.config.get('urls',tag)
             lead_id = action['lead_id']
             tag = action['tag']
             additional_info = action['additional_info']

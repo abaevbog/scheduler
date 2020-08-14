@@ -24,7 +24,7 @@ class Testing(unittest.TestCase):
         dummy = Dummy()
         database.cursor.execute(
             '''
-            Truncate delayer;
+            Truncate delayer_v2;
             Truncate salesforce_recs;
             '''
         )

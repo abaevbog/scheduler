@@ -8,6 +8,7 @@ app: database_client
 
 provider:
   name: aws
+  stage: v2
   runtime: python3.8
   environment: ${file(./scheduler.yaml):database}
   endpointType: REGIONAL
@@ -34,100 +35,37 @@ custom:
 
 functions:
 
-  scheduler_add:
+  add:
     vpc: ${file(./scheduler.yaml):vpc}
-    handler: scheduler_api.add
+    handler: api.add
     events:
     - http:
-        path: /scheduler/add
+        path: /add
         method: post
         authorizer:
           arn: arn:aws:lambda:us-east-1:612185335394:function:utilities-dev-authorizer
     timeout: 15
 
-  scheduler_update:
+  fields:
     vpc: ${file(./scheduler.yaml):vpc}
-    handler: scheduler_api.update
+    handler: api.request_fields
     events:
     - http:
-        path: /scheduler/update
-        method: post
-        authorizer:
-          arn: arn:aws:lambda:us-east-1:612185335394:function:utilities-dev-authorizer
-    timeout: 15  
-
-  scheduler_fields:
-    vpc: ${file(./scheduler.yaml):vpc}
-    handler: scheduler_api.request_fields
-    events:
-    - http:
-        path: /scheduler/get_fields
+        path: /get_fields
         method: get
     timeout: 5
 
-  scheduler_delete:
+  delete:
     vpc: ${file(./scheduler.yaml):vpc}
-    handler: scheduler_api.delete_record
+    handler: api.delete_record
     events:
     - http:
-        path: /scheduler/delete
-        method: post
-        authorizer:
-          arn: arn:aws:lambda:us-east-1:612185335394:function:utilities-dev-authorizer
-    timeout: 5
-  
-  delayer_fields:
-    vpc: ${file(./scheduler.yaml):vpc}
-    handler: delayer_api.request_fields
-    events:
-    - http:
-        path: /delayer/get_fields
-        method: get
-    timeout: 5
-
-  delayer_add:
-    vpc: ${file(./scheduler.yaml):vpc}
-    handler: delayer_api.add
-    events:
-    - http:
-        path: /delayer/add
-        method: post
-        authorizer:
-          arn: arn:aws:lambda:us-east-1:612185335394:function:utilities-dev-authorizer
-    timeout: 15
-
-  delayer_delete:
-    vpc: ${file(./scheduler.yaml):vpc}
-    handler: delayer_api.delete_record
-    events:
-    - http:
-        path: /delayer/delete
+        path: /delete
         method: post
         authorizer:
           arn: arn:aws:lambda:us-east-1:612185335394:function:utilities-dev-authorizer
     timeout: 5
 
-  delayer_update:
-    vpc: ${file(./scheduler.yaml):vpc}
-    handler: delayer_api.update
-    events:
-    - http:
-        path: /delayer/update
-        method: post
-        authorizer:
-          arn: arn:aws:lambda:us-east-1:612185335394:function:utilities-dev-authorizer
-    timeout: 5
-
-  create-tables:
-    vpc: ${file(./scheduler.yaml):vpc}
-    handler: api.create_tables
-    events:
-    - http:
-        path: /create_tables
-        method: get
-        authorizer:
-          arn: arn:aws:lambda:us-east-1:612185335394:function:utilities-dev-authorizer
-    timeout: 15
 
   fetch-zap-codes:
     handler: api.fetch_zap_codes
