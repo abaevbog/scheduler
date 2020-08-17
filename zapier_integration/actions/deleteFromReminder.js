@@ -1,9 +1,12 @@
 const remove = (z, bundle) => {
     z.console.log(bundle.inputData);
     const promise = z.request({
-        url:'https://usx0yjoww7.execute-api.us-east-1.amazonaws.com/dev/scheduler/delete',
+        url:'https://9b8pw4g950.execute-api.us-east-1.amazonaws.com/v2/delete',
         method: 'POST',
         body: bundle.inputData,
+        params: {
+          'operator': 'reminder'
+        },
         headers: {
           'Authorization' : 'bmasters2020'
           }
@@ -29,7 +32,7 @@ const remove = (z, bundle) => {
           label: 'Lead id of the entry that will be removed',
         },
         {
-            key: 'scheduler_db_internal_tag',
+            key: 'tag',
             required: true,
             label: 'scheduler database internal tag of the entry that will be removed',
             dynamic: 'find_codes.id.name'

@@ -1,10 +1,7 @@
-var oneTime = require('./actions/oneTimeAction');
-var delayerUpdate = require('./actions/updateDelayer');
-var delayerDelete = require('./actions/deleteFromDelayer');
-var recurring = require('./actions/recurringAction');
-var recurringDelete = require('./actions/deleteRecurringAction');
-var update = require('./actions/updateReminders');
-var test = require('./actions/testUpdate');
+var addToDelayer = require('./actions/addToDelayer');
+var addToReminder = require('./actions/addToReminder');
+var deleteFromReminder = require('./actions/deleteFromReminder');
+var deleteFromDelayer = require('./actions/deleteFromDelayer');
 var fetchCodes = require('./triggers/fetch_codes');
 
 module.exports = {
@@ -23,12 +20,10 @@ module.exports = {
 
   // If you want your creates to show up, you better include it here!
   creates: {
-    [oneTime.key] : oneTime,
-    [recurring.key]: recurring,
-    [update.key]: update,
-    [delayerUpdate.key] : delayerUpdate,
-    [delayerDelete.key] : delayerDelete,
-    [recurringDelete.key]: recurringDelete
+    [addToDelayer.key] : addToDelayer,
+    [addToReminder.key]: addToReminder,
+    [deleteFromReminder.key]: deleteFromReminder,
+    [deleteFromDelayer.key] : deleteFromDelayer,
   },
 
   resources: {},

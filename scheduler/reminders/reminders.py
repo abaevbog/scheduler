@@ -35,6 +35,7 @@ class Reminders(Operator):
             ON reminder.lead_id = salesforce_recs.id
             WHERE salesforce_recs.start_date <= %s::timestamp
             AND NOT ARRAY['ON_HOLD__c']::varchar[] <@ salesforce_recs.satisfied)
+            AND NOT reminder.indefinite
             RETURNING *;
             ''',[self.now_rounded ])
         deleted = self.cursor.fetchall()
@@ -79,7 +80,7 @@ class Reminders(Operator):
         updated_before = self.cursor.fetchall()
         for x in updated_before:
             self.print_record('REMIMDER UPDATED BEFORE CUTOFF -- ',x)
-        updated_ids = [row[7] for row in updated_before]
+        updated_ids = [row[8] for row in updated_before]
         self.cursor.execute('''
             UPDATE reminder
             SET trigger_date_definition.next_date = %s::timestamp + (cutoff).freq_after * interval '1 day'

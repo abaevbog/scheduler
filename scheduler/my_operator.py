@@ -73,7 +73,9 @@ class Operator(ABC):
             SET trigger_date_definition.next_date = sf.START_DATE::timestamp - (trigger_date_definition).days_before_start * interval '1 day'
             FROM salesforce_recs as sf
             WHERE sf.id = op.lead_id
-            AND (trigger_date_definition).next_date {sign} sf.START_DATE::timestamp - (trigger_date_definition).days_before_start * interval '1 day'
+            AND ((trigger_date_definition).next_date {sign} sf.START_DATE::timestamp - (trigger_date_definition).days_before_start * interval '1 day'
+                OR (trigger_date_definition).next_date is NULL)
+            AND NOT op.indefinite
             RETURNING *;
             ''', [self.now_rounded, self.now_rounded ])
         updated = self.cursor.fetchall()

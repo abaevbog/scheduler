@@ -24,6 +24,7 @@ tag            VARCHAR(250)        NOT NULL,
 additional_info      TEXT                 ,
 cutoff          cutoff          NOT NULL,
 trigger_date_definition   trigger_date_definition,
+indefinite boolean default false,
 required_salesforce_fields VARCHAR(250)[] default array[]::varchar[250],
 ID   SERIAL     PRIMARY KEY      NOT NULL,
 created_at timestamp default current_timestamp(0)
@@ -52,6 +53,6 @@ status VARCHAR(250),
 START_DATE timestamp
 );
 
-ALTER TABLE REMINDER ADD CONSTRAINT unique_entries UNIQUE (lead_id, project_name, tag);
+ALTER TABLE REMINDER ADD CONSTRAINT unique_entries_reminder UNIQUE (lead_id, project_name, tag);
 
-ALTER TABLE DELAYER_V2 ADD CONSTRAINT unique_entries UNIQUE (lead_id, project_name, tag);
+ALTER TABLE DELAYER_V2 ADD CONSTRAINT unique_entries_delayer UNIQUE (lead_id, project_name, tag);

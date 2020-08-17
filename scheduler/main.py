@@ -14,7 +14,7 @@ def main():
         operator = Reminders(config)
     else:
         raise Exception(f"Unknown operator {operator_name}")
-
+    operator.truncate_salesforce_records()
     operator.get_salesforce_data()
     operator.update_records_before_trigger()
     operator.perform_trigger_actions()

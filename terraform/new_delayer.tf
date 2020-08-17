@@ -14,7 +14,7 @@ resource "aws_ecs_task_definition" "new_delayer_task" {
 resource "aws_cloudwatch_event_rule" "new_delayer_rule" {
   name        = "run_new_delayer"
   description = "Rule new scheduler with delayer command"
-  schedule_expression = "cron(0 * ? * * *)"
+  schedule_expression = "cron(30 * ? * * *)"
   
 }
 

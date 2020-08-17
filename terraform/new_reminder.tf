@@ -16,7 +16,7 @@ resource "aws_ecs_task_definition" "reminder_task" {
 resource "aws_cloudwatch_event_rule" "reminder_rule" {
   name        = "reminder"
   description = "Run new scheduler with reminders command"
-  schedule_expression = "cron(0 12-22 ? * MON-FRI *)"
+  schedule_expression = "cron(15 12-22 ? * MON-FRI *)"
   
 }
 
