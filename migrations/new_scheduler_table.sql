@@ -27,7 +27,7 @@ trigger_date_definition   trigger_date_definition,
 indefinite boolean default false,
 required_salesforce_fields VARCHAR(250)[] default array[]::varchar[250],
 ID   SERIAL     PRIMARY KEY      NOT NULL,
-created_at timestamp default current_timestamp(0)
+created_at timestamp default (current_timestamp(0) at time zone 'America/New_York')
 );
 
 /*reminders table*/
@@ -39,7 +39,7 @@ tag            VARCHAR(250)        NOT NULL,
 additional_info      TEXT                 ,
 trigger_date_definition trigger_date_definition,
 ID   SERIAL     PRIMARY KEY      NOT NULL,
-created_at timestamp default current_timestamp(0)
+created_at timestamp default (current_timestamp(0) at time zone 'America/New_York') 
 );
 
 

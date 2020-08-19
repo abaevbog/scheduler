@@ -37,7 +37,7 @@ class Testing(unittest.TestCase):
         #print("SYNCING DUE DATES")
         database.sync_start_dates_w_salesforce()
         database.cursor.execute('''
-            SELECT * FROM delayer;
+            SELECT * FROM delayer_v2;
         ''')
         entries = database.cursor.fetchall()
 

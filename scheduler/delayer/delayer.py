@@ -26,8 +26,8 @@ class Delayer(Operator):
         self.cursor.execute(
             f'''
             DELETE FROM delayer_v2
-            WHERE lead_id IN 
-            (SELECT lead_id FROM delayer_v2 INNER JOIN salesforce_recs
+            WHERE id IN 
+            (SELECT delayer_v2.id FROM delayer_v2 INNER JOIN salesforce_recs
             ON delayer_v2.lead_id = salesforce_recs.id
             WHERE (delayer_v2).trigger_date_definition.next_date <= %s::timestamp  
             AND NOT ARRAY['ON_HOLD__c']::varchar[] <@ salesforce_recs.satisfied)

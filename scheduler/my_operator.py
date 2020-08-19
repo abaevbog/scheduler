@@ -60,13 +60,16 @@ class Operator(ABC):
         boolean_fields, date_fields = s.get_object_fields()
         lead_ids = self.get_lead_ids()
         recs = s.get_classified_records(lead_ids,boolean_fields+["PRECON_DATE__c","PREDEMO_DATE__c"])
-        self.add_salesforce_records(recs,["id","name", "satisfied", "not_satisfied","status", "START_DATE"])
+        if len(recs) != 0:
+            self.add_salesforce_records(recs,["id","name", "satisfied", "not_satisfied","status", "START_DATE"])
 
 
     def sync_start_dates_w_salesforce(self):
         sign = "!="
+        indefinite_condition = ""
         if self.operator == "reminder":
             sign = "<"
+            indefinite_condition = "AND NOT op.indefinite"
         self.cursor.execute(
             f'''
             UPDATE {self.operator} as op
@@ -75,7 +78,7 @@ class Operator(ABC):
             WHERE sf.id = op.lead_id
             AND ((trigger_date_definition).next_date {sign} sf.START_DATE::timestamp - (trigger_date_definition).days_before_start * interval '1 day'
                 OR (trigger_date_definition).next_date is NULL)
-            AND NOT op.indefinite
+            {indefinite_condition}
             RETURNING *;
             ''', [self.now_rounded, self.now_rounded ])
         updated = self.cursor.fetchall()

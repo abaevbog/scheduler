@@ -51,6 +51,8 @@ class Salesforce:
     # send the query to fetch fields found above from objects with lead ids
     # fetched from the db
     def get_records(self, lead_ids, fields):
+        if lead_ids == []:
+            return []
         fields.append('status')
         fields_string = ",".join(fields)
         ids_arr_formatted = list(map(lambda x: "\'" + x + "\'" ,lead_ids))
@@ -72,7 +74,6 @@ class Salesforce:
             print(f"SALESFORCE EXCEPTION: {e}")
             return []
         broken_into_satisfied_or_not = []
-        keys = records[0].keys()
         for rec in records:
             print(rec)
             d = {'id':rec['Id'],'name':rec['Name'],'status':rec['Status']}
