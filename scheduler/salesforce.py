@@ -75,7 +75,6 @@ class Salesforce:
             return []
         broken_into_satisfied_or_not = []
         for rec in records:
-            print(rec)
             d = {'id':rec['Id'],'name':rec['Name'],'status':rec['Status']}
             satisfied = [key.lower() for key in rec if rec[key]]
             not_satisfied = [key.lower() for key in rec if not rec[key]]

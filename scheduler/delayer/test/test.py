@@ -9,6 +9,7 @@ import configparser
 from entries import Dummy
 import pytz
 from datetime import datetime, timedelta
+from psycopg2.errors import UniqueViolation
       
 config = configparser.ConfigParser()
 with open(r'scheduler.conf') as f:
@@ -31,6 +32,10 @@ class Testing(unittest.TestCase):
         database.add_salesforce_records(dummy.salesforce_entries,["id","name", "satisfied", "not_satisfied","status", "START_DATE"])
         for entry in dummy.database_entries:
             database.add_new_record(entry)
+            try:
+                database.add_new_record(entry)
+            except UniqueViolation as e:
+                print(e)
 
 
     def test_bbbbbb_sync_salesforce(self):

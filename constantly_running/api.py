@@ -28,7 +28,7 @@ def add(event,context):
     body['trigger_date_definition'] = tuple(body['trigger_date_definition'])
 
     db.add_record(body, operator)
-    db.print_record(f"{operator} - ADD ",body)
+    db.print_record(operator,f"{operator} - ADD ",body)
     return {"statusCode":200, "body": json.dumps({"message" : f"Record added to {operator}"})}
 
 def request_fields(event,context):
@@ -52,10 +52,23 @@ def delete_record(event,context):
     tag = body['tag']
     lead_id = body['lead_id']
     db.delete_record(lead_id,tag, operator)
-    db.print_record(f"{operator} - DELETE ",body)
+    db.print_record(operator, f"{operator} - DELETE ",body)
     return {"statusCode":200, "body": json.dumps({"message" : f"Record deleted from {operator}"})}
 
-
+def update_record(event,context):
+    db = Database(config)
+    operator = event["queryStringParameters"]['operator']
+    if operator == "delayer":
+        operator = "delayer_v2"
+    elif operator != "reminder":
+        raise Exception(f"Unknown operator {operator_name}")
+    body = json.loads(event['body'])
+    tag = body['tag']
+    lead_id = body['lead_id']
+    trigger_date_def = tuple(body['trigger_date_definition'])
+    rec = db.update_record(lead_id,tag, operator, 'trigger_date_definition', trigger_date_def)
+    db.print_record(operator, f"{operator} - UPDATE ",rec)
+    return {"statusCode":200, "body": json.dumps({"message" : f"Record deleted from {operator}"})}
 
 def fetch_zap_codes(event,context):
     s3.download_file(os.environ['BUCKET'], 'config/scheduler.conf', '/tmp/scheduler.conf')

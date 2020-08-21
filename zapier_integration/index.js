@@ -3,6 +3,7 @@ var addToReminder = require('./actions/addToReminder');
 var deleteFromReminder = require('./actions/deleteFromReminder');
 var deleteFromDelayer = require('./actions/deleteFromDelayer');
 var fetchCodes = require('./triggers/fetch_codes');
+var updateReminder = require('./actions/updateReminder');
 
 module.exports = {
   // This is just shorthand to reference the installed dependencies you have.
@@ -24,6 +25,7 @@ module.exports = {
     [addToReminder.key]: addToReminder,
     [deleteFromReminder.key]: deleteFromReminder,
     [deleteFromDelayer.key] : deleteFromDelayer,
+    [updateReminder.key]:updateReminder
   },
 
   resources: {},
