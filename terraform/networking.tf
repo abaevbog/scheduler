@@ -38,9 +38,10 @@ resource "aws_route_table" "route_table" {
     gateway_id = aws_internet_gateway.scheduler_vpc_gateway.id
   }
   tags = {
-    Name = "Scheduler route table"
+    Name = "Scheduler public route table"
   }
 }
+
 
 resource "aws_route_table_association" "a" {
   subnet_id      = aws_subnet.public_subnet.id
@@ -69,6 +70,37 @@ resource "aws_subnet" "private_subnet_two" {
     Deployed_by = "Terraform"
   }
 }
+
+resource "aws_nat_gateway" "nat_gateway" {
+  allocation_id = "eipalloc-077ca6b5df4eeada7"
+  subnet_id     = aws_subnet.public_subnet.id
+  tags = {
+    Name = "Nat gateway for scheduler"
+  }
+}
+
+resource "aws_route_table" "route_table_private" {
+  vpc_id = aws_vpc.scheduler_vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_nat_gateway.nat_gateway.id
+  }
+  tags = {
+    Name = "Scheduler private route table"
+  }
+}
+
+resource "aws_route_table_association" "association_private_one" {
+  subnet_id      = aws_subnet.private_subnet.id
+  route_table_id = aws_route_table.route_table_private.id
+}
+
+resource "aws_route_table_association" "association_private_two" {
+  subnet_id      = aws_subnet.private_subnet_two.id
+  route_table_id = aws_route_table.route_table_private.id
+}
+
 
 resource "aws_security_group" "allow_anything_for_lambda" {
   name        = "scheduler allow_https"
