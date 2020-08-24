@@ -8,7 +8,7 @@ app: database_client
 
 provider:
   name: aws
-  stage: v2
+  stage: dev
   runtime: python3.8
   environment: ${file(./scheduler.yaml):database}
   endpointType: REGIONAL
@@ -24,14 +24,21 @@ provider:
       Action:
         - "s3:ListBucket"
       Resource: arn:aws:s3:::email-templates-unique-12345
-        
+    - Effect: Allow
+      Action:
+        - "logs:CreateLogStream"
+      Resource: '*'
+    - Effect: Allow
+      Action:
+        - "logs:PutLogEvents"
+      Resource: '*'
     
 custom:
   pythonRequirements:
     dockerizePip: non-linux
     dockerFile: ./Dockerfile
 
-
+#arn:aws:logs:us-east-1:${file(./scheduler.yaml):account_id}:log-group:scheduler*:*:*
 
 functions:
 

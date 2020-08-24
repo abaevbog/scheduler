@@ -24,7 +24,7 @@ def add(event,context):
     elif operator == "reminder":
         body['cutoff'] = tuple(body['cutoff'])
     else:
-        raise Exception(f"Unknown operator {operator_name}")
+        raise Exception(f"Unknown operator {operator}")
     body['trigger_date_definition'] = tuple(body['trigger_date_definition'])
 
     db.add_record(body, operator)
@@ -37,7 +37,7 @@ def request_fields(event,context):
     if operator == "delayer":
         operator = "delayer_v2"
     elif operator != "reminder":
-        raise Exception(f"Unknown operator {operator_name}")
+        raise Exception(f"Unknown operator {operator}")
     fields = db.get_fields(operator)
     return {"statusCode":200, "body": json.dumps({"db_fields" : fields})}
 
@@ -47,7 +47,7 @@ def delete_record(event,context):
     if operator == "delayer":
         operator = "delayer_v2"
     elif operator != "reminder":
-        raise Exception(f"Unknown operator {operator_name}")
+        raise Exception(f"Unknown operator {operator}")
     body = json.loads(event['body'])
     tag = body['tag']
     lead_id = body['lead_id']
@@ -61,7 +61,7 @@ def update_record(event,context):
     if operator == "delayer":
         operator = "delayer_v2"
     elif operator != "reminder":
-        raise Exception(f"Unknown operator {operator_name}")
+        raise Exception(f"Unknown operator {operator}")
     body = json.loads(event['body'])
     tag = body['tag']
     lead_id = body['lead_id']
