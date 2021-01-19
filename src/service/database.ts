@@ -1,13 +1,13 @@
 import { MongoClient, Db } from "mongodb";
 
-const uri ="mongodb://localhost:27017/scheduler";
+const uri = process.env.MONGO_URL || "mongodb://localhost:27017/scheduler";
 let db : Db;
 
 const establishConnection = function():void {
     var client = new MongoClient(uri, { useUnifiedTopology: true });
     client.connect().then((res) => {
         console.log("connected");
-        db = client.db('production_db');
+        db = client.db('scheduler');
     }).catch((e) => {
         console.log(e);
         console.log("Retry in 90 seconds");

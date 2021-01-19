@@ -1,41 +1,54 @@
+import { DeleteWriteOpResultObject, UpdateWriteOpResult } from "mongodb";
 import { db } from "../service/database";
 const axios = require("axios").default;
 
-const runReminderWorkflow = function (): void {
+// Function that runs the whole scheduling workflow for reminders
+const runReminderWorkflow = async function (): Promise<void> {
   const fixedNow = new Date();
 
-  const ensureAllDueDatesAreCorrect = function (): Promise<any> {
+  // NOT USED: but it updates the dueDate to be keyDate - daysBeforeKeyDate if present
+  const ensureAllDueDatesAreCorrect = function (): Promise<UpdateWriteOpResult> {
     return db
       .collection("Reminder")
-      .updateMany(
-        { $and: [{ keyDate: { $exists: true } }, { started: false }] },
-        [
-          {
-            $set: {
-              dueDate: {
-                $subtract: [
-                  "$keyDate",
-                  { $multiply: ["$daysBeforeKeyDate", 1000, 60, 60, 24] },
-                ],
-              },
+      .updateMany({ $and: [{ keyDate: { $ne: null } }, { started: false }] }, [
+        {
+          $set: {
+            dueDate: {
+              $subtract: [
+                "$keyDate",
+                { $multiply: ["$daysBeforeKeyDate", 1000, 60, 60, 24] },
+              ],
             },
           },
-        ]
-      );
+        },
+      ]);
   };
 
-  const deleteSatisfiedAndOldActions = function (): Promise<any> {
+  // Delete actions that have empty requiredFields or that are past last date
+  const deleteSatisfiedAndOldActions = async function (): Promise<DeleteWriteOpResultObject> {
+    const toBeDeleted = await db
+      .collection("Reminder")
+      .find({
+        $or: [
+          { lastDate: { $lte: fixedNow } },
+          { requiredFields: { $size: 0 } },
+        ],
+      })
+      .toArray();
+    console.log("Reminder: delete -- ", toBeDeleted);
     return db.collection("Reminder").deleteMany({
-      $and: [{ lastDate: { $lte: "$$NOW" } }, { requiredFields: { $size: 0 } }],
+      $or: [{ lastDate: { $lte: fixedNow } }, { requiredFields: { $size: 0 } }],
     });
   };
 
+  // Fetches actions that are past due and not on hold and sends requests
   const executeDueActions = async function (): Promise<any[]> {
     //fetch due actions
     const dueActions = await db
       .collection("Reminder")
-      .find({ dueDate: { $lte: fixedNow } })
+      .find({ $and: [{ dueDate: { $lte: fixedNow } }, { onHold: false }] })
       .toArray();
+    console.log("Reminder: due -- ", dueActions);
     // send them to specified url
     const promises = [];
     for (const record of dueActions) {
@@ -45,24 +58,31 @@ const runReminderWorkflow = function (): void {
     return Promise.all(promises);
   };
 
+  // reschedules reminding actions
   const rescheduleActions = function (): Promise<any> {
-    console.log("start");
-    return db
-      .collection("Reminder")
-      .updateMany({ dueDate: { $lte: fixedNow } }, [
-        {
-          $set: {
-            dueDate: {
-              $add: [
-                "$$NOW",
-                {
-                  $multiply: [
+    return (
+      db
+        .collection("Reminder")
+        // Actions that were due
+        .updateMany(
+          { $and: [{ dueDate: { $lte: fixedNow } }, { onHold: false }] },
+          [
+            {
+              //set due date to be NOW + last entry in recurrence array that
+              // is greater than current time
+              $set: {
+                dueDate: {
+                  $add: [
+                    "$$NOW",
                     {
-                      $function: {
-                        body: `function ( recurrence, keyDate){
+                      // finding that last entry here
+                      $multiply: [
+                        {
+                          $function: {
+                            body: `function ( recurrence, keyDate){
                     let index = -1;
                     let tempDate = keyDate;
-                    const now = fixedNow();
+                    const now = new Date();
                     do {
                       index++;
                       tempDate = keyDate
@@ -72,30 +92,31 @@ const runReminderWorkflow = function (): void {
                     );
                     return recurrence[index].frequency;
                   }`,
-                        args: ["$recurrence", "$keyDate", "$$NOW"],
-                        lang: "js",
-                      },
+                            args: ["$recurrence", "$keyDate"],
+                            lang: "js",
+                          },
+                        },
+                        // multiply our value (e.g 10) by these numbers to get days in miliseconds
+                        1000,
+                        60,
+                        60,
+                        24,
+                      ],
                     },
-                    1000,
-                    60,
-                    60,
-                    24,
                   ],
                 },
-              ],
+              },
             },
-          },
-        },
-      ]);
+            { $set: { started: true } },
+          ]
+        )
+    );
   };
 
-
-
-  ensureAllDueDatesAreCorrect();
-  deleteSatisfiedAndOldActions();
-  executeDueActions();
-  rescheduleActions();
+  await ensureAllDueDatesAreCorrect();
+  await deleteSatisfiedAndOldActions();
+  await executeDueActions();
+  await rescheduleActions();
 };
 
-
-export {runReminderWorkflow }
+export { runReminderWorkflow };

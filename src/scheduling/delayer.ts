@@ -1,11 +1,11 @@
 import { db } from "../service/database";
 const axios = require("axios").default;
 
-const runDelayerWorkflow = function (): void {
+const runDelayerWorkflow = async function (): Promise<void> {
   const fixedNow = new Date();
 
   const ensureAllDueDatesAreCorrect = function (): Promise<any> {
-    return db.collection("Delayer").updateMany({ keyDate: { $exists: true } }, [
+    return db.collection("Delayer").updateMany({ keyDate: { $ne: null } }, [
       {
         $set: {
           dueDate: {
@@ -23,9 +23,10 @@ const runDelayerWorkflow = function (): void {
     //fetch due actions
     const dueActions = await db
       .collection("Delayer")
-      .find({ dueDate: { $lte: fixedNow } })
+      .find({$and : [{ dueDate: { $lte: fixedNow }}, {onHold : false} ]})
       .toArray();
     // send them to specified url
+    console.log("Delayer: due -- ", dueActions);
     const promises = [];
     for (const record of dueActions) {
       promises.push(axios.post(record.url, record));
@@ -36,12 +37,12 @@ const runDelayerWorkflow = function (): void {
   const deleteOldActions = function (): Promise<any> {
     return db
       .collection("Delayer")
-      .deleteMany({ dueDate: { $lte: fixedNow } });
+      .deleteMany({$and : [{ dueDate: { $lte: fixedNow }}, {onHold : false} ]} );
   };
 
-  ensureAllDueDatesAreCorrect();
-  executeDueActions();
-  deleteOldActions();
+  await ensureAllDueDatesAreCorrect();
+  await executeDueActions();
+  await deleteOldActions();
 };
 
 export{runDelayerWorkflow };

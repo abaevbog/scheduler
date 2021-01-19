@@ -9,8 +9,8 @@ interface Recurrence {
 
 // This is the interface for the message data
 interface Reminder {
-  id: number;
-  projectName: string;
+  _id: string;
+  projectId: string;
   tag: string;
   url: string | undefined;
   onHold: boolean;
@@ -25,19 +25,28 @@ interface Reminder {
 }
 
 const addToReminder = function (req: Request, res: Response): void {
+  if (req.body.dueDate) req.body.dueDate = new Date(req.body.dueDate);
+  if (req.body.keyDate) req.body.keyDate = new Date(req.body.keyDate);
+  if (req.body.lastDate) req.body.lastDate = new Date(req.body.lastDate);
   let body: Reminder = req.body;
+  body.ohHold = false;
+  body.started = false;
+  body.createdAt = new Date();
+  body._id = req.body.projectId + "_" +req.body.tag;
   return dealWithPromise(db.collection("Reminder").insertOne(body), res);
 };
 
 const updateReminderEntries = function (req: Request, res: Response): void {
+  req.body.dueDate = new Date(req.body.dueDate);
+  if (req.body.keyDate) req.body.keyDate = new Date(req.body.keyDate);
+  if (req.body.lastDate) req.body.lastDate = new Date(req.body.lastDate);
   let body: Reminder = req.body;
-  // if we have a required field, remove it
   if (body.requiredFields) {
     return dealWithPromise(
       db
         .collection("Reminder")
         .updateMany(
-          { $and: [{ tag: body.tag }, { projectName: body.projectName }] },
+          { $and: [{ projectId: body.projectId }] },
           { $pull: { requiredFields: body.requiredFields } } 
         ),
       res
@@ -48,7 +57,7 @@ const updateReminderEntries = function (req: Request, res: Response): void {
     db
       .collection("Reminder")
       .updateMany(
-        { $and: [{ tag: body.tag }, { projectName: body.projectName }] },
+        { $and: [ { projectId: body.projectId }] },
         {$set : body}
       ),
     res
@@ -61,10 +70,10 @@ const removeReminderEntries = function (req: Request, res: Response): void {
     db
       .collection("Reminder")
       .deleteMany({
-        $and: [{ tag: body.tag }, { projectName: body.projectName }],
+        $and: [{ projectId: body.projectId }],
       }),
     res
   );
 };
 
-export { addToReminder, updateReminderEntries, removeReminderEntries, Recurrence };
+export { addToReminder, updateReminderEntries, removeReminderEntries, Reminder, Recurrence };
