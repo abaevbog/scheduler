@@ -8,7 +8,7 @@ setTimeout(async () => {
     reminderEntries.forEach((entry:any) => {
         promises.push(db.collection("Reminder").insertOne(entry));
     })
-    Promise.all(promises).then((res:any) => {
-        runReminderWorkflow()
-    })
+    //Promise.all(promises).then((res:any) => {
+    //    runReminderWorkflow()
+    //})
 }, 5000)

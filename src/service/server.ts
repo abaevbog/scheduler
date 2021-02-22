@@ -4,6 +4,7 @@ import {
   addToReminder,
   updateReminderEntries,
   removeReminderEntries,
+  fetchReminderEntry
 } from "../api/reminder";
 import {
   addToDelayer,
@@ -13,21 +14,43 @@ import {
 import { runReminderWorkflow } from "../scheduling/reminder";
 import { runDelayerWorkflow } from "../scheduling/delayer";
 import schedule from "node-schedule";
-import { body, validationResult, oneOf } from "express-validator";
+import { body, validationResult, oneOf, query } from "express-validator";
 
 const app = express();
 app.use(express.json());
 
 const port = 80;
 
+
+app.use(function (req, res, next) {
+  let header  = req.header("Authentication");
+  console.log('Checking header: ', header);
+  if (header == "bmasters2020") {
+    next();
+  }
+  res.send(403);
+})
+
 app.listen(port, () => {
   console.log(`App listening at port ${port}`);
 });
-morganBody(app);
+
+morganBody(app, {
+  noColors: true, 
+  prettify: false,
+  includeNewLine: true,
+  logIP: true,
+  logReqUserAgent: false,
+  skip : (req, res) => {
+    return !(req.path.includes('delayer') || req.path.includes('delayer'));
+  }
+});
+
+
 app.post(
   "/delayer",
   body("tag").exists(),
-  body("projectName").exists(),
+  body("projectId").exists(),
   oneOf([body("dueDate").isISO8601(), body("keyDate").isISO8601()]),
   body("url").isURL(),
   (req: any, res: any) => {
@@ -42,8 +65,7 @@ app.post(
 
 app.patch(
   "/delayer",
-  body("tag").exists(),
-  body("projectName").exists(),
+  body("projectId").exists(),
   oneOf([body("dueDate").isISO8601(), body("keyDate").isISO8601()]),
   (req: any, res: any) => {
     const errors = validationResult(req);
@@ -57,8 +79,7 @@ app.patch(
 
 app.delete(
   "/delayer",
-  body("tag").exists(),
-  body("projectName").exists(),
+  body("projectId").exists(),
   (req: any, res: any) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -80,7 +101,7 @@ app.post(
 app.post(
   "/reminder",
   body("tag").exists(),
-  body("projectName").exists(),
+  body("projectId").exists(),
   oneOf([body("dueDate").isISO8601(), body("keyDate").isISO8601()]),
   body("url").isURL(),
   body("requiredFields")
@@ -103,8 +124,7 @@ app.post(
 
 app.patch(
   "/reminder",
-  body("tag").exists(),
-  body("projectName").exists(),
+  body("projectId").exists(),
   (req: any, res: any) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -116,14 +136,26 @@ app.patch(
 
 app.delete(
   "/reminder",
-  body("tag").exists(),
-  body("projectName").exists(),
+  body("projectId").exists(),
   (req: any, res: any) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
     removeReminderEntries(req, res);
+  }
+);
+
+app.get(
+  "/reminder",
+  query("projectId").isString(),
+  query("tag").isString(),
+  (req: any, res: any) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    fetchReminderEntry(req, res);
   }
 );
 

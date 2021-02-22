@@ -1,10 +1,11 @@
 import  {addToReminder, Reminder} from '../api/reminder';
 import  {addToDelayer, Delayer } from '../api/delayer';
 
-const delayerEntries: Delayer[] = [
+const delayerEntries: any[] = [
     {
         _id : '1',
         projectName : 'project',
+        projectId: '213',
         tag : 'pm-01',
         url : 'https://hook.integromat.com/2ajmoqs3s78bq1ohpz64nt0029jssf0u',
         onHold : false,
@@ -16,6 +17,7 @@ const delayerEntries: Delayer[] = [
     {
         _id : '2',
         projectName : 'project',
+        projectId: '213',
         tag : 'pm-01',
         url : 'https://hook.integromat.com/2ajmoqs3s78bq1ohpz64nt0029jssf0u',
         onHold : false,
@@ -27,6 +29,7 @@ const delayerEntries: Delayer[] = [
     {
         _id : '3',
         projectName : 'project',
+        projectId: '213',
         tag : 'pm-01',
         url : 'https://hook.integromat.com/2ajmoqs3s78bq1ohpz64nt0029jssf0u',
         onHold : false,
@@ -37,10 +40,11 @@ const delayerEntries: Delayer[] = [
     }
 ]
 
-const reminderEntries: Reminder[] = [
+const reminderEntries: any[] = [
     {
         _id : '1',
         projectName : 'project',
+        projectId: '213',
         tag : 'pm-01',
         url : 'https://hook.integromat.com/2ajmoqs3s78bq1ohpz64nt0029jssf0u',
         onHold : false,
@@ -56,6 +60,7 @@ const reminderEntries: Reminder[] = [
     {
         _id : '2',
         projectName : 'project',
+        projectId: '213',
         tag : 'pm-01',
         url : 'https://hook.integromat.com/2ajmoqs3s78bq1ohpz64nt0029jssf0u',
         onHold : false,
@@ -72,6 +77,7 @@ const reminderEntries: Reminder[] = [
         _id : '3',
         projectName : 'project',
         tag : 'pm-01',
+        projectId: '213',
         url : 'https://hook.integromat.com/2ajmoqs3s78bq1ohpz64nt0029jssf0u',
         onHold : false,
         dueDate : new Date('2021-01-03T20:42:12.663Z'),
@@ -86,6 +92,7 @@ const reminderEntries: Reminder[] = [
     {
         _id : '4',
         projectName : 'project',
+        projectId: '213',
         tag : 'pm-01',
         url : 'https://hook.integromat.com/2ajmoqs3s78bq1ohpz64nt0029jssf0u',
         onHold : false,
@@ -101,6 +108,7 @@ const reminderEntries: Reminder[] = [
     {
         _id : '5',
         projectName : 'project',
+        projectId: '213',
         tag : 'pm-01',
         url : 'https://hook.integromat.com/2ajmoqs3s78bq1ohpz64nt0029jssf0u',
         onHold : false,
@@ -112,6 +120,35 @@ const reminderEntries: Reminder[] = [
         requiredFields : ['one', 'two', 'three'],
         recurrence : [{daysBeforeKeyDate : 20, frequency : 7},{daysBeforeKeyDate : 10, frequency : 3}],
         comment : 'Due rescheduled for 3 days later',
+    },
+    {
+        _id : '6',
+        projectName : 'project',
+        projectId: '213',
+        tag : 'pm-03',
+        url : 'https://hook.integromat.com/2ajmoqs3s78bq1ohpz64nt0029jssf0u',
+        onHold : false,
+        dueDate : new Date('2021-01-03T20:42:12.663Z'),
+        keyDate : new Date('2021-01-28T20:42:12.663Z'),
+        daysBeforeKeyDate: 25,
+        started : false, 
+        requiredFields : ['one', 'two', 'three'],
+        recurrence : [{daysBeforeKeyDate : 20, frequency : 7},{daysBeforeKeyDate : 10, frequency : 3}],
+        comment : 'No last date',
+    },
+    {
+        _id : '7',
+        projectName : 'project',
+        projectId: '213',
+        tag : 'pm-03',
+        url : 'https://hook.integromat.com/2ajmoqs3s78bq1ohpz64nt0029jssf0u',
+        onHold : false,
+        dueDate : new Date('2021-01-03T20:42:12.663Z'),
+        daysBeforeKeyDate: 25,
+        started : false, 
+        requiredFields : ['one', 'two', 'three'],
+        recurrence : [{daysBeforeKeyDate : 20, frequency : 7},{daysBeforeKeyDate : 10, frequency : 3}],
+        comment : 'No last date or key date',
     }
 ]
 

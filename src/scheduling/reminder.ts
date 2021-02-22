@@ -6,7 +6,6 @@ const axios = require("axios").default;
 const runReminderWorkflow = async function (): Promise<void> {
   const fixedNow = new Date();
 
-  // NOT USED: but it updates the dueDate to be keyDate - daysBeforeKeyDate if present
   const ensureAllDueDatesAreCorrect = function (): Promise<UpdateWriteOpResult> {
     return db
       .collection("Reminder")
@@ -52,7 +51,6 @@ const runReminderWorkflow = async function (): Promise<void> {
     // send them to specified url
     const promises = [];
     for (const record of dueActions) {
-      console.log(record);
       promises.push(axios.post(record.url, record));
     }
     return Promise.all(promises);

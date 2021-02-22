@@ -1,6 +1,7 @@
 import { db } from "../service/database";
 import { Request, Response } from "express";
 import { dealWithPromise } from "../helpers/dealWithPromise";
+import { FilterQuery } from "mongodb";
 // This is the interface for the message data
 interface Delayer {
   _id : string,
@@ -18,21 +19,26 @@ const addToDelayer = function (req: Request, res: Response): void {
   if (req.body.dueDate) req.body.dueDate = new Date(req.body.dueDate);
   if (req.body.keyDate) req.body.keyDate = new Date(req.body.keyDate);
   let body: Delayer = req.body;
-  body.ohHold = false;
+  body.onHold = false;
   body.createdAt = new Date();
   body._id = req.body.projectId + "_" +req.body.tag;
-  dealWithPromise(db.collection("delayer").insertOne(body), res);
+  dealWithPromise(db.collection("Delayer").insertOne(body), res);
 };
 
 const updateDelayerEntries = function (req: Request, res: Response): void {
   let body: Delayer = req.body;
-  if (req.body.keyDate) req.body.keyDate = new Date(req.body.keyDate);
+  if (body.keyDate) body.keyDate = new Date(body.keyDate);
+  
+  let filterStatement : FilterQuery<any> = { $and: [ { projectId: body.projectId }] };
+  if (body.tag) {
+    filterStatement = { $and: [ { projectId: body.projectId}, {tag: body.tag}] }
+  }
   dealWithPromise(
     db
-      .collection("delayer")
+      .collection("Delayer")
       .updateMany(
-        { $and: [ { projectId: body.projectId }] },
-        body
+        filterStatement,
+        {$set: body}
       ),
     res
   );
@@ -40,10 +46,12 @@ const updateDelayerEntries = function (req: Request, res: Response): void {
 
 const removeDelayerEntries = function (req: Request, res: Response): void {
   let body: Delayer = req.body;
+  let filterStatement : FilterQuery<any> = { $and: [ { projectId: body.projectId }] };
+  if (body.tag) {
+    filterStatement = { $and: [ { projectId: body.projectId}, {tag: body.tag}] }
+  }
   dealWithPromise(
-    db.collection("delayer").deleteMany({
-      $and: [{ projectId: body.projectId }],
-    }),
+    db.collection("Delayer").deleteMany(filterStatement),
     res
   );
 };
