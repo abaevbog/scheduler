@@ -23,12 +23,12 @@ const port = 80;
 
 
 app.use(function (req, res, next) {
-  let header  = req.header("Authentication");
-  console.log('Checking header: ', header);
-  if (header == "bmasters2020") {
-    next();
-  }
-  res.send(403);
+  let header  = req.header("authorization");
+  if (header == "bmasters2020" || req.path == "/check") {
+    return next();
+  } 
+  return res.sendStatus(403);
+
 })
 
 app.listen(port, () => {
@@ -40,9 +40,9 @@ morganBody(app, {
   prettify: false,
   includeNewLine: true,
   logIP: true,
-  logReqUserAgent: false,
+  logReqUserAgent: true,
   skip : (req, res) => {
-    return !(req.path.includes('delayer') || req.path.includes('delayer'));
+    return req.path.includes('check');
   }
 });
 

@@ -13,9 +13,35 @@ const runReminderWorkflow = async function (): Promise<void> {
         {
           $set: {
             dueDate: {
-              $subtract: [
-                "$keyDate",
-                { $multiply: ["$daysBeforeKeyDate", 1000, 60, 60, 24] },
+              $add: [
+                "$$NOW",
+                {
+                  $multiply: [
+                    {
+                      $function: {
+                        body: `function ( recurrence, keyDate, createdAt){
+                          let index = -1;
+                          let tempDate = keyDate;
+                          const now = new Date();
+                          do {
+                            index++;
+                            tempDate = keyDate
+                          } while (
+                            index < recurrence.length - 1 &&
+                            now > keyDate.getTime() - recurrence[index].daysBeforeKeyDate * (24*60*60*1000)
+                          );
+                          return createdAt + (recurrence[index].frequency * (24*60*60*1000));
+                        }`,
+                        args: ["$recurrence", "$keyDate", "$createdAt"],
+                        lang: "js",
+                      },
+                    },
+                    1000,
+                    60,
+                    60,
+                    24,
+                  ],
+                },
               ],
             },
           },
@@ -78,18 +104,18 @@ const runReminderWorkflow = async function (): Promise<void> {
                         {
                           $function: {
                             body: `function ( recurrence, keyDate){
-                    let index = -1;
-                    let tempDate = keyDate;
-                    const now = new Date();
-                    do {
-                      index++;
-                      tempDate = keyDate
-                    } while (
-                      index < recurrence.length - 1 &&
-                      now > function(){ tempDate.setDate(tempDate.getDate() - recurrence[index].daysBeforeKeyDate );return tempDate }()
-                    );
-                    return recurrence[index].frequency;
-                  }`,
+                              let index = -1;
+                              let tempDate = keyDate;
+                              const now = new Date();
+                              do {
+                                index++;
+                                tempDate = keyDate
+                              } while (
+                                index < recurrence.length - 1 &&
+                                now > keyDate.getTime() - recurrence[index].daysBeforeKeyDate * (24*60*60*1000)
+                              );
+                              return recurrence[index].frequency;
+                            }`,
                             args: ["$recurrence", "$keyDate"],
                             lang: "js",
                           },
@@ -111,7 +137,7 @@ const runReminderWorkflow = async function (): Promise<void> {
     );
   };
 
-  await ensureAllDueDatesAreCorrect();
+  //await ensureAllDueDatesAreCorrect();
   await deleteSatisfiedAndOldActions();
   await executeDueActions();
   await rescheduleActions();
