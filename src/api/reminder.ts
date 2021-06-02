@@ -1,7 +1,7 @@
 import { db } from "../service/database";
 import { Request, Response } from "express";
 import { dealWithPromise } from "../helpers/dealWithPromise";
-import { FilterQuery, UpdateQuery } from "mongodb";
+import { FilterQuery, UpdateQuery, UpdateWriteOpResult } from "mongodb";
 
 interface Recurrence {
   daysBeforeKeyDate: number;
@@ -44,9 +44,9 @@ const updateReminderEntries = function (req: Request, res: Response): void {
   if (req.body.keyDate) req.body.keyDate = new Date(req.body.keyDate);
   if (req.body.lastDate) req.body.lastDate = new Date(req.body.lastDate);
   let body: Reminder = req.body;
-
   // Update everything for entries with this project id and tag
   if (body.tag) {
+    body.createdAt = new Date();
     return dealWithPromise(
       db
         .collection("Reminder")
@@ -57,36 +57,36 @@ const updateReminderEntries = function (req: Request, res: Response): void {
       res
     );
   }
+  let promises : Promise<UpdateWriteOpResult>[] = [];
     // Update key start date for entries that have this projectId IF START DATE EXISTS
   if (body.keyDate) {
-    dealWithPromise(
+    promises.push(
       db
-        .collection("Reminder")
-        .updateMany(
-        { $and: [ { projectId: body.projectId}, { keyDate: { $ne: null } }] },
-        {$set : {keyDate : body.keyDate, started: false, onHold: body.onHold || false}}
-        ),
-      res
-    );
+      .collection("Reminder")
+      .updateMany(
+      { $and: [ { projectId: body.projectId}, { keyDate: { $ne: null } }] },
+      { $set : {keyDate : body.keyDate, started: false, onHold: body.onHold || false, createdAt : new Date()}}
+      )
+     )
   }
 
   // Update last date for entries that have this projectId IF LAST DATE EXISTS
   if (body.lastDate) {
-    dealWithPromise(
+    promises.push(
       db
-        .collection("Reminder")
-        .updateMany(
-        { $and: [ { projectId: body.projectId}, { lastDate: { $ne: null } }] },
-        {$set : {lastDate : body.lastDate, started: false, onHold: body.onHold || false}}
-        ),
-      res
-    );
+      .collection("Reminder")
+      .updateMany(
+      { $and: [ { projectId: body.projectId}, { lastDate: { $ne: null } }] },
+      { $set : {lastDate : body.lastDate, started: false, onHold: body.onHold || false, createdAt : new Date() }}
+      )
+    )
   }
+  dealWithPromise(Promise.all(promises), res);
 };
 
 const removeReminderEntries = function (req: Request, res: Response): void {
   let body: Reminder = req.body;
-  let filterStatement : FilterQuery<any> = { $and: [ { projectId: body.projectId }] };
+  let filterStatement : FilterQuery<any> = { $and: [{ projectId: body.projectId }] };
   if (body.tag) {
     filterStatement = { $and: [ { projectId: body.projectId}, {tag: body.tag}] }
   }
