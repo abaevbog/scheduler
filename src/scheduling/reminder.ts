@@ -5,7 +5,8 @@ const axios = require("axios").default;
 // Function that runs the whole scheduling workflow for reminders
 const runReminderWorkflow = async function (): Promise<void> {
   const fixedNow = new Date();
-
+  const fifteenMinutesAgo = fixedNow;
+  fifteenMinutesAgo.setMinutes(fixedNow.getMinutes() - 10);
   const ensureAllDueDatesAreCorrect = function (): Promise<UpdateWriteOpResult> {
     return db
       .collection("Reminder")
@@ -95,7 +96,7 @@ const runReminderWorkflow = async function (): Promise<void> {
               $set: {
                 dueDate: {
                   $add: [
-                    fixedNow,
+                    fifteenMinutesAgo,
                     {
                       // finding that last entry here
                       $multiply: [
@@ -124,11 +125,10 @@ const runReminderWorkflow = async function (): Promise<void> {
                             lang: "js",
                           },
                         },
-                        // multiply our value (e.g 10) by these numbers to get days in miliseconds
-                        1000,
-                        60,
-                        60,
-                        24,
+                        1000, // 1 second
+                        60, // 1 minute
+                        60, //1 hour 
+                        24, //1 day
                       ],
                     },
                   ],
