@@ -176,7 +176,7 @@ app.get("/check", (req: any, res: any) => {
 
 let delayerRule = new schedule.RecurrenceRule();
 delayerRule.tz = 'America/New_York'
-delayerRule.hour =  [new schedule.Range(8, 17)];
+delayerRule.hour =  [new schedule.Range(6, 23)];
 delayerRule.minute = 0;
 
 let reminderRule = new schedule.RecurrenceRule();

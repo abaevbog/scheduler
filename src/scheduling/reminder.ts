@@ -56,7 +56,7 @@ const runReminderWorkflow = async function (): Promise<void> {
   };
 
   // Fetches actions that are past due and not on hold and sends requests
-  const executeDueActions = async function (): Promise<any[]> {
+  const executeDueActions = async function (): Promise<any> {
     //fetch due actions
     const dueActions = await db
       .collection("Reminder")
@@ -72,9 +72,13 @@ const runReminderWorkflow = async function (): Promise<void> {
     // send them to specified url
     const promises = [];
     for (const record of dueActions) {
-      promises.push(axios.post(record.url, record));
+      try {
+        await promises.push(axios.post(record.url, record));
+      } catch (e) {
+        console.log("Error ", e, "Record ", record )
+      }
+      
     }
-    return Promise.all(promises);
   };
 
   // reschedules reminding actions

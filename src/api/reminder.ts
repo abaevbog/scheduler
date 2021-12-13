@@ -87,8 +87,9 @@ const updateReminderEntries = function (req: Request, res: Response): void {
 const removeReminderEntries = function (req: Request, res: Response): void {
   let body: Reminder = req.body;
   let filterStatement : FilterQuery<any> = { $and: [{ projectId: body.projectId }] };
+  // { $and: [ { projectId: body.projectId}, {tag: body.tag}] },
   if (body.tag) {
-    filterStatement = { $and: [ { projectId: body.projectId}, {tag: body.tag}] }
+    filterStatement = { $and: [ { projectId: body.projectId}, {tag: body.tag} ] }
   }
   dealWithPromise(
     db

@@ -19,7 +19,7 @@ const runDelayerWorkflow = async function (): Promise<void> {
     ]);
   };
 
-  const executeDueActions = async function (): Promise<any[]> {
+  const executeDueActions = async function (): Promise<any> {
     //fetch due actions
     const dueActions = await db
       .collection("Delayer")
@@ -29,9 +29,13 @@ const runDelayerWorkflow = async function (): Promise<void> {
     console.log("Delayer: due -- ", dueActions);
     const promises = [];
     for (const record of dueActions) {
-      promises.push(axios.post(record.url, record));
+      try {
+        await axios.post(record.url, record);
+      } catch (e) {
+        console.log("Error with record ", record, e)
+      }
+      
     }
-    return Promise.all(promises);
   };
 
   const deleteOldActions = function (): Promise<any> {
